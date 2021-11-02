@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProductVersion>8.0.30703</ProductVersion>
+        <SchemaVersion>2.0</SchemaVersion>
+        <ProjectGuid>{6C642F6F-E443-48DF-96E8-EC1A6B997E8F}</ProjectGuid>
+        <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+        <OutputType>Library</OutputType>
+        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <RootNamespace>Vibe</RootNamespace>
+        <AssemblyName>Vibe</AssemblyName>
+        <FileAlignment>512</FileAlignment>
+        <AndroidApplication>True</AndroidApplication>
+        <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
+        <AndroidResgenClass>Resource</AndroidResgenClass>
+        <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+        <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
+        <TargetFrameworkVersion>v11.0</TargetFrameworkVersion>
+        <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
+        <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
+        <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
+        <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidClientHandler</AndroidHttpClientHandlerType>
+        <LangVersion>default</LangVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <DebugSymbols>True</DebugSymbols>
+        <DebugType>portable</DebugType>
+        <Optimize>False</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <AndroidUseSharedRuntime>True</AndroidUseSharedRuntime>
+        <AndroidLinkMode>None</AndroidLinkMode>
+        <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
+        <AndroidSupportedAbis>armeabi-v7a;x86;arm64-v8a;x86_64</AndroidSupportedAbis>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <DebugSymbols>True</DebugSymbols>
+        <DebugType>pdbonly</DebugType>
+        <Optimize>True</Optimize>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <AndroidManagedSymbols>true</AndroidManagedSymbols>
+        <AndroidUseSharedRuntime>False</AndroidUseSharedRuntime>
+        <AndroidLinkMode>SdkOnly</AndroidLinkMode>
+        <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="System" />
+        <Reference Include="System.Xml" />
+        <Reference Include="System.Core" />
+        <Reference Include="Mono.Android" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Interface\Fragments\HomeFragment.cs" />
+        <Compile Include="Interface\Fragments\LibraryFragment.cs" />
+        <Compile Include="Interface\Fragments\Lists\AlbumsListFragment.cs" />
+        <Compile Include="Interface\Fragments\Lists\ArtistsListFragment.cs" />
+        <Compile Include="Interface\Fragments\Lists\SelectableListFragment.cs" />
+        <Compile Include="Interface\Fragments\Lists\TracksListFragment.cs" />
+        <Compile Include="Interface\Fragments\MediaControlFragment.cs" />
+        <Compile Include="Interface\Fragments\SearchFragment.cs" />
+        <Compile Include="Interface\ShelfActivity.cs" />
+        <Compile Include="Interface\SplashActivity.cs" />
+        <Compile Include="Music\Album.cs" />
+        <Compile Include="Music\Artist.cs" />
+        <Compile Include="Music\Collection.cs" />
+        <Compile Include="Music\Library.cs" />
+        <Compile Include="Music\Playback.cs" />
+        <Compile Include="Music\Playlist.cs" />
+        <Compile Include="Music\Queue.cs" />
+        <Compile Include="Music\Track.cs" />
+        <Compile Include="Resources\Resource.Designer.cs" />
+        <Compile Include="Properties\AssemblyInfo.cs" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="Resources\AboutResources.txt" />
+        <None Include="Properties\AndroidManifest.xml" />
+        <None Include="Assets\AboutAssets.txt" />
+    </ItemGroup>
+    <ItemGroup>
+        <AndroidResource Include="Resources\drawable-hdpi\album.png" />
+        <AndroidResource Include="Resources\drawable-hdpi\artist.png" />
+        <AndroidResource Include="Resources\drawable-hdpi\home.png" />
+        <AndroidResource Include="Resources\drawable-hdpi\library.png" />
+        <AndroidResource Include="Resources\drawable-hdpi\logo.png" />
+        <AndroidResource Include="Resources\drawable-hdpi\search.png" />
+        <AndroidResource Include="Resources\drawable-hdpi\track.png" />
+        <AndroidResource Include="Resources\drawable-mdpi\album.png" />
+        <AndroidResource Include="Resources\drawable-mdpi\artist.png" />
+        <AndroidResource Include="Resources\drawable-mdpi\home.png" />
+        <AndroidResource Include="Resources\drawable-mdpi\library.png" />
+        <AndroidResource Include="Resources\drawable-mdpi\logo.png" />
+        <AndroidResource Include="Resources\drawable-mdpi\search.png" />
+        <AndroidResource Include="Resources\drawable-mdpi\track.png" />
+        <AndroidResource Include="Resources\drawable-xhdpi\album.png" />
+        <AndroidResource Include="Resources\drawable-xhdpi\artist.png" />
+        <AndroidResource Include="Resources\drawable-xhdpi\home.png" />
+        <AndroidResource Include="Resources\drawable-xhdpi\library.png" />
+        <AndroidResource Include="Resources\drawable-xhdpi\logo.png" />
+        <AndroidResource Include="Resources\drawable-xhdpi\search.png" />
+        <AndroidResource Include="Resources\drawable-xhdpi\track.png" />
+        <AndroidResource Include="Resources\drawable-xxhdpi\album.png" />
+        <AndroidResource Include="Resources\drawable-xxhdpi\artist.png" />
+        <AndroidResource Include="Resources\drawable-xxhdpi\home.png" />
+        <AndroidResource Include="Resources\drawable-xxhdpi\library.png" />
+        <AndroidResource Include="Resources\drawable-xxhdpi\logo.png" />
+        <AndroidResource Include="Resources\drawable-xxhdpi\search.png" />
+        <AndroidResource Include="Resources\drawable-xxhdpi\track.png" />
+        <AndroidResource Include="Resources\drawable-xxxhdpi\album.png" />
+        <AndroidResource Include="Resources\drawable-xxxhdpi\artist.png" />
+        <AndroidResource Include="Resources\drawable-xxxhdpi\home.png" />
+        <AndroidResource Include="Resources\drawable-xxxhdpi\library.png" />
+        <AndroidResource Include="Resources\drawable-xxxhdpi\logo.png" />
+        <AndroidResource Include="Resources\drawable-xxxhdpi\search.png" />
+        <AndroidResource Include="Resources\drawable-xxxhdpi\track.png" />
+        <AndroidResource Include="Resources\drawable\shape_controls.xml" />
+        <AndroidResource Include="Resources\drawable\shape_image_missing.xml" />
+        <AndroidResource Include="Resources\drawable\shape_search.xml" />
+        <AndroidResource Include="Resources\drawable\selector_tabs.xml" />
+        <AndroidResource Include="Resources\drawable\splash.xml" />
+        <AndroidResource Include="Resources\font\lato_light.xml" />
+        <AndroidResource Include="Resources\font\montserrat.xml" />
+        <AndroidResource Include="Resources\font\montserrat_bold.xml" />
+        <AndroidResource Include="Resources\font\rubik.xml" />
+        <AndroidResource Include="Resources\font\rubik_light.xml" />
+        <AndroidResource Include="Resources\font\rubik_medium.xml" />
+        <AndroidResource Include="Resources\font\work_sans_light.xml" />
+        <AndroidResource Include="Resources\layout\fragment_controls.xml" />
+        <AndroidResource Include="Resources\layout\listitem_fragment_album.xml" />
+        <AndroidResource Include="Resources\layout\list_fragment_albums.xml" />
+        <AndroidResource Include="Resources\layout\listitem_fragment_artist.xml" />
+        <AndroidResource Include="Resources\layout\list_fragment_artists.xml" />
+        <AndroidResource Include="Resources\layout\fragment_home.xml" />
+        <AndroidResource Include="Resources\layout\fragment_library.xml" />
+        <AndroidResource Include="Resources\layout\fragment_search.xml" />
+        <AndroidResource Include="Resources\layout\listitem_fragment_track.xml" />
+        <AndroidResource Include="Resources\layout\list_fragment_tracks.xml" />
+        <AndroidResource Include="Resources\layout\activity_shelf.xml" />
+        <AndroidResource Include="Resources\menu\navigator.axml" />
+        <AndroidResource Include="Resources\values-night\colors.xml" />
+        <AndroidResource Include="Resources\values\colors.xml" />
+        <AndroidResource Include="Resources\values\font_certs.xml" />
+        <AndroidResource Include="Resources\values\ic_launcher_background.xml" />
+        <AndroidResource Include="Resources\values\preloaded_fonts.xml" />
+        <AndroidResource Include="Resources\values\strings.xml" />
+        <AndroidResource Include="Resources\values\styles.xml" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Xamarin.Android.Support.Design" Version="28.0.0.3" />
+    </ItemGroup>
+    <ItemGroup>
+      <Content Include=".gitignore" />
+    </ItemGroup>
+    <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
+    <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+      Other similar extension points exist, see Microsoft.Common.targets.
+      <Target Name="BeforeBuild">
+      </Target>
+      <Target Name="AfterBuild">
+      </Target>
+    -->
+</Project>

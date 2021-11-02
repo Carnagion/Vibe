@@ -1,0 +1,7 @@
+*.sln
+.idea
+Assets
+bin
+Interface
+obj
+Resources
