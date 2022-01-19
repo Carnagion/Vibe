@@ -23,6 +23,7 @@
         <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
         <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidClientHandler</AndroidHttpClientHandlerType>
         <LangVersion>default</LangVersion>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <DebugSymbols>True</DebugSymbols>
@@ -51,29 +52,33 @@
         <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
     </PropertyGroup>
     <ItemGroup>
+        <Reference Include="MoreLinq, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\MoreLinq\bin\Release\netstandard2.1\MoreLinq.dll</HintPath>
+        </Reference>
         <Reference Include="System" />
         <Reference Include="System.Xml" />
         <Reference Include="System.Core" />
         <Reference Include="Mono.Android" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="Interface\Fragments\HomeFragment.cs" />
-        <Compile Include="Interface\Fragments\LibraryFragment.cs" />
-        <Compile Include="Interface\Fragments\Lists\AlbumsListFragment.cs" />
-        <Compile Include="Interface\Fragments\Lists\ArtistsListFragment.cs" />
-        <Compile Include="Interface\Fragments\Lists\SelectableListFragment.cs" />
-        <Compile Include="Interface\Fragments\Lists\TracksListFragment.cs" />
-        <Compile Include="Interface\Fragments\MediaControlFragment.cs" />
-        <Compile Include="Interface\Fragments\SearchFragment.cs" />
-        <Compile Include="Interface\ShelfActivity.cs" />
-        <Compile Include="Interface\SplashActivity.cs" />
+        <Compile Include="Interface\Activities\MainActivity.cs" />
+        <Compile Include="Interface\Activities\NowPlayingActivity.cs" />
+        <Compile Include="Interface\Activities\SplashActivity.cs" />
+        <Compile Include="Interface\Fragments\AlbumListFragment.cs" />
+        <Compile Include="Interface\Fragments\ArtistListFragment.cs" />
+        <Compile Include="Interface\Fragments\HideableFragment.cs" />
+        <Compile Include="Interface\Fragments\NowPlayingFragment.cs" />
+        <Compile Include="Interface\Fragments\SelectableListFragment.cs" />
+        <Compile Include="Interface\Fragments\TrackListFragment.cs" />
+        <Compile Include="Interface\Services\ForegroundService.cs" />
+        <Compile Include="Interface\Services\NowPlayingService.cs" />
+        <Compile Include="Interface\Services\TimerService.cs" />
         <Compile Include="Music\Album.cs" />
         <Compile Include="Music\Artist.cs" />
-        <Compile Include="Music\Collection.cs" />
+        <Compile Include="Music\Compilation.cs" />
         <Compile Include="Music\Library.cs" />
         <Compile Include="Music\Playback.cs" />
         <Compile Include="Music\Playlist.cs" />
-        <Compile Include="Music\Queue.cs" />
         <Compile Include="Music\Track.cs" />
         <Compile Include="Resources\Resource.Designer.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
@@ -86,63 +91,137 @@
     <ItemGroup>
         <AndroidResource Include="Resources\drawable-hdpi\album.png" />
         <AndroidResource Include="Resources\drawable-hdpi\artist.png" />
+        <AndroidResource Include="Resources\drawable-hdpi\back.png" />
         <AndroidResource Include="Resources\drawable-hdpi\home.png" />
         <AndroidResource Include="Resources\drawable-hdpi\library.png" />
         <AndroidResource Include="Resources\drawable-hdpi\logo.png" />
+        <AndroidResource Include="Resources\drawable-hdpi\menu.png" />
+        <AndroidResource Include="Resources\drawable-hdpi\next.png" />
+        <AndroidResource Include="Resources\drawable-hdpi\notification_notplaying.png" />
+        <AndroidResource Include="Resources\drawable-hdpi\notification_nowplaying.png" />
+        <AndroidResource Include="Resources\drawable-hdpi\notification_pause.png" />
+        <AndroidResource Include="Resources\drawable-hdpi\notification_play.png" />
+        <AndroidResource Include="Resources\drawable-hdpi\pause.png" />
+        <AndroidResource Include="Resources\drawable-hdpi\play.png" />
+        <AndroidResource Include="Resources\drawable-hdpi\previous.png" />
         <AndroidResource Include="Resources\drawable-hdpi\search.png" />
+        <AndroidResource Include="Resources\drawable-hdpi\searchhint.png" />
         <AndroidResource Include="Resources\drawable-hdpi\track.png" />
         <AndroidResource Include="Resources\drawable-mdpi\album.png" />
         <AndroidResource Include="Resources\drawable-mdpi\artist.png" />
+        <AndroidResource Include="Resources\drawable-mdpi\back.png" />
         <AndroidResource Include="Resources\drawable-mdpi\home.png" />
         <AndroidResource Include="Resources\drawable-mdpi\library.png" />
         <AndroidResource Include="Resources\drawable-mdpi\logo.png" />
+        <AndroidResource Include="Resources\drawable-mdpi\menu.png" />
+        <AndroidResource Include="Resources\drawable-mdpi\next.png" />
+        <AndroidResource Include="Resources\drawable-mdpi\notification_notplaying.png" />
+        <AndroidResource Include="Resources\drawable-mdpi\notification_nowplaying.png" />
+        <AndroidResource Include="Resources\drawable-mdpi\notification_pause.png" />
+        <AndroidResource Include="Resources\drawable-mdpi\notification_play.png" />
+        <AndroidResource Include="Resources\drawable-mdpi\pause.png" />
+        <AndroidResource Include="Resources\drawable-mdpi\play.png" />
+        <AndroidResource Include="Resources\drawable-mdpi\previous.png" />
         <AndroidResource Include="Resources\drawable-mdpi\search.png" />
+        <AndroidResource Include="Resources\drawable-mdpi\searchhint.png" />
         <AndroidResource Include="Resources\drawable-mdpi\track.png" />
         <AndroidResource Include="Resources\drawable-xhdpi\album.png" />
         <AndroidResource Include="Resources\drawable-xhdpi\artist.png" />
+        <AndroidResource Include="Resources\drawable-xhdpi\back.png" />
         <AndroidResource Include="Resources\drawable-xhdpi\home.png" />
         <AndroidResource Include="Resources\drawable-xhdpi\library.png" />
         <AndroidResource Include="Resources\drawable-xhdpi\logo.png" />
+        <AndroidResource Include="Resources\drawable-xhdpi\menu.png" />
+        <AndroidResource Include="Resources\drawable-xhdpi\next.png" />
+        <AndroidResource Include="Resources\drawable-xhdpi\notification_notplaying.png" />
+        <AndroidResource Include="Resources\drawable-xhdpi\notification_nowplaying.png" />
+        <AndroidResource Include="Resources\drawable-xhdpi\notification_pause.png" />
+        <AndroidResource Include="Resources\drawable-xhdpi\notification_play.png" />
+        <AndroidResource Include="Resources\drawable-xhdpi\pause.png" />
+        <AndroidResource Include="Resources\drawable-xhdpi\play.png" />
+        <AndroidResource Include="Resources\drawable-xhdpi\previous.png" />
         <AndroidResource Include="Resources\drawable-xhdpi\search.png" />
+        <AndroidResource Include="Resources\drawable-xhdpi\searchhint.png" />
         <AndroidResource Include="Resources\drawable-xhdpi\track.png" />
         <AndroidResource Include="Resources\drawable-xxhdpi\album.png" />
         <AndroidResource Include="Resources\drawable-xxhdpi\artist.png" />
+        <AndroidResource Include="Resources\drawable-xxhdpi\back.png" />
         <AndroidResource Include="Resources\drawable-xxhdpi\home.png" />
         <AndroidResource Include="Resources\drawable-xxhdpi\library.png" />
         <AndroidResource Include="Resources\drawable-xxhdpi\logo.png" />
+        <AndroidResource Include="Resources\drawable-xxhdpi\menu.png" />
+        <AndroidResource Include="Resources\drawable-xxhdpi\next.png" />
+        <AndroidResource Include="Resources\drawable-xxhdpi\notification_notplaying.png" />
+        <AndroidResource Include="Resources\drawable-xxhdpi\notification_nowplaying.png" />
+        <AndroidResource Include="Resources\drawable-xxhdpi\notification_pause.png" />
+        <AndroidResource Include="Resources\drawable-xxhdpi\notification_play.png" />
+        <AndroidResource Include="Resources\drawable-xxhdpi\pause.png" />
+        <AndroidResource Include="Resources\drawable-xxhdpi\play.png" />
+        <AndroidResource Include="Resources\drawable-xxhdpi\previous.png" />
         <AndroidResource Include="Resources\drawable-xxhdpi\search.png" />
+        <AndroidResource Include="Resources\drawable-xxhdpi\searchhint.png" />
         <AndroidResource Include="Resources\drawable-xxhdpi\track.png" />
         <AndroidResource Include="Resources\drawable-xxxhdpi\album.png" />
         <AndroidResource Include="Resources\drawable-xxxhdpi\artist.png" />
+        <AndroidResource Include="Resources\drawable-xxxhdpi\back.png" />
         <AndroidResource Include="Resources\drawable-xxxhdpi\home.png" />
         <AndroidResource Include="Resources\drawable-xxxhdpi\library.png" />
         <AndroidResource Include="Resources\drawable-xxxhdpi\logo.png" />
+        <AndroidResource Include="Resources\drawable-xxxhdpi\menu.png" />
+        <AndroidResource Include="Resources\drawable-xxxhdpi\next.png" />
+        <AndroidResource Include="Resources\drawable-xxxhdpi\notification_notplaying.png" />
+        <AndroidResource Include="Resources\drawable-xxxhdpi\notification_nowplaying.png" />
+        <AndroidResource Include="Resources\drawable-xxxhdpi\notification_pause.png" />
+        <AndroidResource Include="Resources\drawable-xxxhdpi\notification_play.png" />
+        <AndroidResource Include="Resources\drawable-xxxhdpi\pause.png" />
+        <AndroidResource Include="Resources\drawable-xxxhdpi\play.png" />
+        <AndroidResource Include="Resources\drawable-xxxhdpi\previous.png" />
         <AndroidResource Include="Resources\drawable-xxxhdpi\search.png" />
+        <AndroidResource Include="Resources\drawable-xxxhdpi\searchhint.png" />
         <AndroidResource Include="Resources\drawable-xxxhdpi\track.png" />
-        <AndroidResource Include="Resources\drawable\shape_controls.xml" />
-        <AndroidResource Include="Resources\drawable\shape_image_missing.xml" />
-        <AndroidResource Include="Resources\drawable\shape_search.xml" />
-        <AndroidResource Include="Resources\drawable\selector_tabs.xml" />
+        <AndroidResource Include="Resources\drawable\icon_main_menu.xml" />
+        <AndroidResource Include="Resources\drawable\icon_notification_notplaying.xml" />
+        <AndroidResource Include="Resources\drawable\icon_notification_nowplaying.xml" />
+        <AndroidResource Include="Resources\drawable\icon_notification_pause.xml" />
+        <AndroidResource Include="Resources\drawable\icon_notification_play.xml" />
+        <AndroidResource Include="Resources\drawable\icon_nowplaying_pause.xml" />
+        <AndroidResource Include="Resources\drawable\icon_nowplaying_play.xml" />
+        <AndroidResource Include="Resources\drawable\icon_nowplaying_skipnext.xml" />
+        <AndroidResource Include="Resources\drawable\icon_nowplaying_skipprevious.xml" />
+        <AndroidResource Include="Resources\drawable\shape_list_scrollbar.xml" />
+        <AndroidResource Include="Resources\drawable\shape_nowplaying_pause.xml" />
+        <AndroidResource Include="Resources\drawable\shape_nowplaying_seek.xml" />
+        <AndroidResource Include="Resources\drawable\shape_rounded.xml" />
         <AndroidResource Include="Resources\drawable\splash.xml" />
-        <AndroidResource Include="Resources\font\lato_light.xml" />
-        <AndroidResource Include="Resources\font\montserrat.xml" />
-        <AndroidResource Include="Resources\font\montserrat_bold.xml" />
-        <AndroidResource Include="Resources\font\rubik.xml" />
-        <AndroidResource Include="Resources\font\rubik_light.xml" />
-        <AndroidResource Include="Resources\font\rubik_medium.xml" />
-        <AndroidResource Include="Resources\font\work_sans_light.xml" />
-        <AndroidResource Include="Resources\layout\fragment_controls.xml" />
-        <AndroidResource Include="Resources\layout\listitem_fragment_album.xml" />
-        <AndroidResource Include="Resources\layout\list_fragment_albums.xml" />
-        <AndroidResource Include="Resources\layout\listitem_fragment_artist.xml" />
-        <AndroidResource Include="Resources\layout\list_fragment_artists.xml" />
-        <AndroidResource Include="Resources\layout\fragment_home.xml" />
-        <AndroidResource Include="Resources\layout\fragment_library.xml" />
-        <AndroidResource Include="Resources\layout\fragment_search.xml" />
-        <AndroidResource Include="Resources\layout\listitem_fragment_track.xml" />
-        <AndroidResource Include="Resources\layout\list_fragment_tracks.xml" />
-        <AndroidResource Include="Resources\layout\activity_shelf.xml" />
-        <AndroidResource Include="Resources\menu\navigator.axml" />
+        <AndroidResource Include="Resources\font\montserrat.ttf" />
+        <AndroidResource Include="Resources\font\montserrat_bold.ttf" />
+        <AndroidResource Include="Resources\font\open_sans.ttf" />
+        <AndroidResource Include="Resources\font\ubuntu.ttf" />
+        <AndroidResource Include="Resources\layout\activity_main.xml" />
+        <AndroidResource Include="Resources\layout\activity_nowplaying.xml" />
+        <AndroidResource Include="Resources\layout\fragment_list_album.xml" />
+        <AndroidResource Include="Resources\layout\fragment_list_artist.xml" />
+        <AndroidResource Include="Resources\layout\fragment_list_track.xml" />
+        <AndroidResource Include="Resources\layout\fragment_nowplaying.xml" />
+        <AndroidResource Include="Resources\layout\list_album_item.xml" />
+        <AndroidResource Include="Resources\layout\list_artist_item.xml" />
+        <AndroidResource Include="Resources\layout\list_track_item.xml" />
+        <AndroidResource Include="Resources\mipmap-anydpi-v26\logo.xml" />
+        <AndroidResource Include="Resources\mipmap-hdpi\logo.png" />
+        <AndroidResource Include="Resources\mipmap-hdpi\logo_adaptive_back.png" />
+        <AndroidResource Include="Resources\mipmap-hdpi\logo_adaptive_fore.png" />
+        <AndroidResource Include="Resources\mipmap-mdpi\logo.png" />
+        <AndroidResource Include="Resources\mipmap-mdpi\logo_adaptive_back.png" />
+        <AndroidResource Include="Resources\mipmap-mdpi\logo_adaptive_fore.png" />
+        <AndroidResource Include="Resources\mipmap-xhdpi\logo.png" />
+        <AndroidResource Include="Resources\mipmap-xhdpi\logo_adaptive_back.png" />
+        <AndroidResource Include="Resources\mipmap-xhdpi\logo_adaptive_fore.png" />
+        <AndroidResource Include="Resources\mipmap-xxhdpi\logo.png" />
+        <AndroidResource Include="Resources\mipmap-xxhdpi\logo_adaptive_back.png" />
+        <AndroidResource Include="Resources\mipmap-xxhdpi\logo_adaptive_fore.png" />
+        <AndroidResource Include="Resources\mipmap-xxxhdpi\logo.png" />
+        <AndroidResource Include="Resources\mipmap-xxxhdpi\logo_adaptive_back.png" />
+        <AndroidResource Include="Resources\mipmap-xxxhdpi\logo_adaptive_fore.png" />
         <AndroidResource Include="Resources\values-night\colors.xml" />
         <AndroidResource Include="Resources\values\colors.xml" />
         <AndroidResource Include="Resources\values\font_certs.xml" />
@@ -156,6 +235,9 @@
     </ItemGroup>
     <ItemGroup>
       <Content Include=".gitignore" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Resources\menu" />
     </ItemGroup>
     <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
