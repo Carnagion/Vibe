@@ -85,7 +85,8 @@ namespace Vibe.Music
             {
                 return Playback.PlayingState switch
                 {
-                    MediaPlayerState.Prepared or MediaPlayerState.Started or MediaPlayerState.Paused or MediaPlayerState.Completed => (uint)Playback.mediaPlayer.CurrentPosition,
+                    MediaPlayerState.Started or MediaPlayerState.Paused => (uint)Playback.mediaPlayer.CurrentPosition,
+                    MediaPlayerState.Completed => Playback.NowPlaying?.Duration ?? 0,
                     _ => 0,
                 };
             }

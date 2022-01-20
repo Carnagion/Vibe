@@ -76,29 +76,14 @@ namespace Vibe.Music
             
             MusicDataQuery updated = new(Application.Context);
             (MusicDataQuery removed, MusicDataQuery changed, MusicDataQuery missing) = MusicDataQuery.DifferenceBetween(Library.cache, updated);
-            foreach (Artist artist in removed.ConvertToUsableData())
+            
+            removed.ConvertToUsableData().Execute(artist => Library.database.Artists.Add(artist));
+            changed.ConvertToUsableData().Execute(artist =>
             {
-                foreach (Artist match in from existing in Library.Artists
-                                         where existing.Id == artist.Id
-                                         select existing)
-                {
-                    Library.database.Artists.Remove(match);
-                }
-            }
-            foreach (Artist artist in changed.ConvertToUsableData())
-            {
-                foreach (Artist match in from existing in Library.Artists
-                                         where existing.Id == artist.Id
-                                         select existing)
-                {
-                    Library.database.Artists.Remove(match);
-                }
+                Library.database.Artists.RemoveWhere(existing => existing.Id == artist.Id);
                 Library.database.Artists.Add(artist);
-            }
-            foreach (Artist artist in missing.ConvertToUsableData())
-            {
-                Library.database.Artists.Add(artist);
-            }
+            });
+            missing.ConvertToUsableData().Execute(artist => Library.database.Artists.Add(artist));
         }
 
         private sealed record MusicDataQuery
@@ -171,7 +156,7 @@ namespace Vibe.Music
             internal static (MusicDataQuery removed, MusicDataQuery changed, MusicDataQuery missing) DifferenceBetween(MusicDataQuery before, MusicDataQuery after)
             {
                 (MusicDataQuery removed, MusicDataQuery changed, MusicDataQuery missing) difference = new(new(), new(), new());
-
+                
                 (from entry in before.data
                  where !after.data.ContainsKey(entry.Key)
                  select entry).Execute(entry => difference.removed.data.Add(entry.Key, entry.Value));
@@ -183,7 +168,6 @@ namespace Vibe.Music
                 (from entry in after.data
                  where before.data.ContainsKey(entry.Key) && !before.data[entry.Key].Equals(entry.Value)
                  select entry).Execute(entry => difference.changed.data.Add(entry.Key, entry.Value));
-
                 return difference;
             }
             
