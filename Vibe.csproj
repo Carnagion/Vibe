@@ -179,11 +179,13 @@
         <AndroidResource Include="Resources\drawable-xxxhdpi\search.png" />
         <AndroidResource Include="Resources\drawable-xxxhdpi\searchhint.png" />
         <AndroidResource Include="Resources\drawable-xxxhdpi\track.png" />
+        <AndroidResource Include="Resources\drawable\icon_logo.xml" />
         <AndroidResource Include="Resources\drawable\icon_main_menu.xml" />
         <AndroidResource Include="Resources\drawable\icon_notification_notplaying.xml" />
         <AndroidResource Include="Resources\drawable\icon_notification_nowplaying.xml" />
         <AndroidResource Include="Resources\drawable\icon_notification_pause.xml" />
         <AndroidResource Include="Resources\drawable\icon_notification_play.xml" />
+        <AndroidResource Include="Resources\drawable\icon_nowplaying_back.xml" />
         <AndroidResource Include="Resources\drawable\icon_nowplaying_pause.xml" />
         <AndroidResource Include="Resources\drawable\icon_nowplaying_play.xml" />
         <AndroidResource Include="Resources\drawable\icon_nowplaying_skipnext.xml" />

@@ -45,8 +45,7 @@ namespace Vibe.Music
         {
             get
             {
-                return from track in Playback.playingQueue
-                       select track;
+                return Playback.playingQueue.Copy();
             }
         }
 

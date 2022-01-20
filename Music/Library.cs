@@ -24,8 +24,7 @@ namespace Vibe.Music
         {
             get
             {
-                return from artist in Library.database.AllArtists
-                       select artist;
+                return Library.database.AllArtists;
             }
         }
 
@@ -36,8 +35,7 @@ namespace Vibe.Music
         {
             get
             {
-                return from album in Library.database.AllAlbums
-                       select album;
+                return Library.database.AllAlbums;
             }
         }
 
@@ -48,8 +46,23 @@ namespace Vibe.Music
         {
             get
             {
-                return from track in Library.database.AllTracks
-                       select track;
+                return Library.database.AllTracks;
+            }
+        }
+
+        public static IEnumerable<Playlist> Playlists
+        {
+            get
+            {
+                return Library.database.Playlists.Copy();
+            }
+        }
+
+        public static IEnumerable<Compilation> Compilations
+        {
+            get
+            {
+                return Library.database.Compilations.Copy();
             }
         }
 
@@ -59,6 +72,8 @@ namespace Vibe.Music
         public static void BuildDatabase()
         {
             Library.database.Artists.Clear();
+            Library.database.Playlists.Clear();
+            Library.database.Compilations.Clear();
             Library.cache = new(Application.Context);
             Library.cache.ConvertToUsableData().Execute(artist => Library.database.Artists.Add(artist));
         }
@@ -84,6 +99,8 @@ namespace Vibe.Music
                 Library.database.Artists.Add(artist);
             });
             missing.ConvertToUsableData().Execute(artist => Library.database.Artists.Add(artist));
+
+            Library.cache = updated;
         }
 
         private sealed record MusicDataQuery

@@ -79,12 +79,14 @@ namespace Vibe.Music
         {
             get
             {
-                foreach (Playlist playlist in this.Playlists)
+                HashSet<Playlist> visited = new();
+                foreach (Playlist playlist in this.Playlists.ExecuteAndYield(playlist => visited.Add(playlist)))
                 {
                     yield return playlist;
                 }
                 foreach (Playlist playlist in from Compilation compilation in this.AllCompilations
                                               from Playlist playlist in compilation.Playlists
+                                              where !visited.Contains(playlist)
                                               select playlist)
                 {
                     yield return playlist;
@@ -99,12 +101,14 @@ namespace Vibe.Music
         {
             get
             {
-                foreach (Artist artist in this.Artists)
+                HashSet<Artist> visited = new();
+                foreach (Artist artist in this.Artists.ExecuteAndYield(artist => visited.Add(artist)))
                 {
                     yield return artist;
                 }
                 foreach (Artist artist in from Compilation compilation in this.AllCompilations
                                           from Artist artist in compilation.Artists
+                                          where !visited.Contains(artist)
                                           select artist)
                 {
                     yield return artist;
@@ -119,18 +123,21 @@ namespace Vibe.Music
         {
             get
             {
-                foreach (Album album in this.Albums)
+                HashSet<Album> visited = new();
+                foreach (Album album in this.Albums.ExecuteAndYield(album => visited.Add(album)))
                 {
                     yield return album;
                 }
-                foreach (Album album in from Compilation compilation in this.AllCompilations
-                                        from Album album in compilation.Albums
-                                        select album)
+                foreach (Album album in (from Compilation compilation in this.AllCompilations
+                                         from Album album in compilation.Albums
+                                         where !visited.Contains(album)
+                                         select album).ExecuteAndYield(album => visited.Add(album)))
                 {
                     yield return album;
                 }
                 foreach (Album album in from Artist artist in this.AllArtists
                                         from Album album in artist.Albums
+                                        where !visited.Contains(album)
                                         select album)
                 {
                     yield return album;
@@ -145,18 +152,21 @@ namespace Vibe.Music
         {
             get
             {
-                foreach (Track track in this.Tracks)
+                HashSet<Track> visited = new();
+                foreach (Track track in this.Tracks.ExecuteAndYield(track => visited.Add(track)))
                 {
                     yield return track;
                 }
-                foreach (Track track in from Playlist playlist in this.AllPlaylists
-                                        from Track track in playlist
-                                        select track)
+                foreach (Track track in (from Playlist playlist in this.AllPlaylists
+                                         from Track track in playlist
+                                         where !visited.Contains(track)
+                                         select track).ExecuteAndYield(track => visited.Add(track)))
                 {
                     yield return track;
                 }
                 foreach (Track track in from Album album in this.AllAlbums
                                         from Track track in album.Tracks
+                                        where !visited.Contains(track)
                                         select track)
                 {
                     yield return track;
