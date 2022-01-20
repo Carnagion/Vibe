@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <style name="Theme.Vibe" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:colorBackground">@color/background</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+    <style name="Theme.Vibe.Splash" parent="Theme.Vibe">
+        <item name="android:windowBackground">@drawable/splash</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+    <style name="Theme.Vibe.Translucent" parent="Theme.Vibe">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:alpha">0.8</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
+    <style name="Text.Vibe.Title" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/on_background</item>
+    </style>
+    <style name="Text.Vibe.Title.Montserrat" parent="Text.Vibe.Title">
+        <item name="fontFamily">@font/montserrat_bold</item>
+    </style>
+    <style name="Text.Vibe.Title.Ubuntu" parent="Text.Vibe.Title">
+        <item name="fontFamily">@font/ubuntu</item>
+    </style>
+    <style name="Text.Vibe.Content" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/on_background_importance_mid</item>
+    </style>
+    <style name="Text.Vibe.Content.Montserrat" parent="Text.Vibe.Content">
+        <item name="fontFamily">@font/montserrat</item>
+    </style>
+    <style name="Text.Vibe.Content.OpenSans" parent="Text.Vibe.Content">
+        <item name="fontFamily">@font/open_sans</item>
+    </style>
+    <style name="Text.Vibe.Miscellaneous" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/on_background_importance_low</item>
+    </style>
+    <style name="Text.Vibe.Miscellaneous.Ubuntu" parent="Text.Vibe.Miscellaneous">
+        <item name="android:fontFamily">@font/ubuntu</item>
+    </style>
+</resources>

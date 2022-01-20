@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string name="app_name">Vibe</string>
+    <string name="activity_nowplaying_toptext">Now playing</string>
+    <string name="notification_channel_nowplaying_title">Now playing</string>
+    <string name="notification_channel_nowplaying_description">The notification channel used to show the notification for the currently playing track.</string>
+    <string name="notification_nowplaying_description">Not playing anything.</string>
+    <string name="notification_nowplaying_play">Play</string>
+    <string name="notification_nowplaying_pause">Pause</string>
+    <string name="notification_nowplaying_next">Next</string>
+    <string name="notification_nowplaying_previous">Back</string>
+    <string name="tab_artists">Artists</string>
+    <string name="tab_albums">Albums</string>
+    <string name="tab_tracks">Tracks</string>
+    <string name="tab_playlists">Playlists</string>
+    <string name="tab_compilations">Compilations</string>
+</resources>

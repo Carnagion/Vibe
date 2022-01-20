@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <color name="background">#121212</color>
+    <color name="background_elevation_1">#1e1e1e</color>
+    <color name="background_elevation_2">#222222</color>
+    <color name="background_elevation_4">#272727</color>
+    <color name="background_elevation_8">#2d2d2d</color>
+    <color name="on_background">#ffffff</color>
+    <color name="on_background_importance_low">#7affffff</color>
+    <color name="on_background_importance_mid">#99ffffff</color>
+    <color name="on_background_importance_high">#ddffffff</color>
+</resources>

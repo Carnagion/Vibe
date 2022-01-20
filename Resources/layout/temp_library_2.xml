@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+                                                 xmlns:app="http://schemas.android.com/apk/res-auto" 
+                                                 android:layout_width="match_parent" 
+                                                 android:layout_height="match_parent">
+    <android.support.design.widget.AppBarLayout android:id="@+id/appbar"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:background="@color/night"
+                                                app:layout_scrollFlags="scroll|enterAlways">
+        <android.support.v7.widget.Toolbar android:layout_width="match_parent"
+                                           android:layout_height="?attr/actionBarSize"
+                                           app:layout_scrollFlags="scroll|enterAlways">
+            <TextView android:id="@+id/title"
+                      android:layout_width="match_parent"
+                      android:layout_height="match_parent"
+                      android:gravity="center_vertical"
+                      android:text="@string/fragment_library_title"
+                      android:textAppearance="@style/text_title"/>
+        </android.support.v7.widget.Toolbar>
+        <android.support.design.widget.TabLayout android:id="@+id/tabs"
+                                                 android:layout_width="match_parent"
+                                                 android:layout_height="32dp"
+                                                 android:layout_below="@id/title"
+                                                 android:layout_marginBottom="4dp"
+                                                 app:tabMinWidth="96dp"
+                                                 app:tabIndicatorHeight="4dp"
+                                                 app:tabIndicatorFullWidth="false"
+                                                 app:tabTextAppearance="@style/text_tab"
+                                                 app:tabIndicatorColor="@color/day"
+                                                 app:tabSelectedTextColor="@color/day"
+                                                 app:tabTextColor="@color/night_elevation_16"
+                                                 app:tabMode="scrollable">
+            <android.support.design.widget.TabItem android:text="@string/tab_artists"/>
+            <android.support.design.widget.TabItem android:text="@string/tab_albums"/>
+            <android.support.design.widget.TabItem android:text="@string/tab_tracks"/>
+        </android.support.design.widget.TabLayout>
+    </android.support.design.widget.AppBarLayout>
+    <android.support.v4.view.ViewPager android:id="@+id/content"
+                                       android:layout_width="match_parent"
+                                       android:layout_height="match_parent"
+                                       android:layout_below="@id/appbar"
+                                       app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+</android.support.design.widget.CoordinatorLayout>
