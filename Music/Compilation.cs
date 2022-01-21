@@ -61,10 +61,14 @@ namespace Vibe.Music
         {
             get
             {
+                HashSet<Compilation> visited = new();
                 foreach (Compilation compilation in this.Compilations)
                 {
                     yield return compilation;
-                    foreach (Compilation subCompilation in compilation.AllCompilations)
+                    visited.Add(compilation);
+                    foreach (Compilation subCompilation in from subCompilation in compilation.AllCompilations
+                                                           where !visited.Contains(subCompilation)
+                                                           select subCompilation)
                     {
                         yield return subCompilation;
                     }
@@ -80,9 +84,10 @@ namespace Vibe.Music
             get
             {
                 HashSet<Playlist> visited = new();
-                foreach (Playlist playlist in this.Playlists.ExecuteAndYield(playlist => visited.Add(playlist)))
+                foreach (Playlist playlist in this.Playlists)
                 {
                     yield return playlist;
+                    visited.Add(playlist);
                 }
                 foreach (Playlist playlist in from Compilation compilation in this.AllCompilations
                                               from Playlist playlist in compilation.Playlists
@@ -102,9 +107,10 @@ namespace Vibe.Music
             get
             {
                 HashSet<Artist> visited = new();
-                foreach (Artist artist in this.Artists.ExecuteAndYield(artist => visited.Add(artist)))
+                foreach (Artist artist in this.Artists)
                 {
                     yield return artist;
+                    visited.Add(artist);
                 }
                 foreach (Artist artist in from Compilation compilation in this.AllCompilations
                                           from Artist artist in compilation.Artists
@@ -124,16 +130,18 @@ namespace Vibe.Music
             get
             {
                 HashSet<Album> visited = new();
-                foreach (Album album in this.Albums.ExecuteAndYield(album => visited.Add(album)))
+                foreach (Album album in this.Albums)
                 {
                     yield return album;
+                    visited.Add(album);
                 }
-                foreach (Album album in (from Compilation compilation in this.AllCompilations
-                                         from Album album in compilation.Albums
-                                         where !visited.Contains(album)
-                                         select album).ExecuteAndYield(album => visited.Add(album)))
+                foreach (Album album in from Compilation compilation in this.AllCompilations
+                                        from Album album in compilation.Albums
+                                        where !visited.Contains(album)
+                                        select album)
                 {
                     yield return album;
+                    visited.Add(album);
                 }
                 foreach (Album album in from Artist artist in this.AllArtists
                                         from Album album in artist.Albums
@@ -153,16 +161,18 @@ namespace Vibe.Music
             get
             {
                 HashSet<Track> visited = new();
-                foreach (Track track in this.Tracks.ExecuteAndYield(track => visited.Add(track)))
+                foreach (Track track in this.Tracks)
                 {
                     yield return track;
+                    visited.Add(track);
                 }
-                foreach (Track track in (from Playlist playlist in this.AllPlaylists
-                                         from Track track in playlist
-                                         where !visited.Contains(track)
-                                         select track).ExecuteAndYield(track => visited.Add(track)))
+                foreach (Track track in from Playlist playlist in this.AllPlaylists
+                                        from Track track in playlist
+                                        where !visited.Contains(track)
+                                        select track)
                 {
                     yield return track;
+                    visited.Add(track);
                 }
                 foreach (Track track in from Album album in this.AllAlbums
                                         from Track track in album.Tracks

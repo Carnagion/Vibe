@@ -24,7 +24,7 @@ namespace Vibe.Music
         {
             get
             {
-                return Library.database.AllArtists;
+                return Library.database.Artists.Copy();
             }
         }
 
@@ -35,7 +35,9 @@ namespace Vibe.Music
         {
             get
             {
-                return Library.database.AllAlbums;
+                return from artist in Library.database.Artists
+                       from album in artist.Albums
+                       select album;
             }
         }
 
@@ -46,7 +48,10 @@ namespace Vibe.Music
         {
             get
             {
-                return Library.database.AllTracks;
+                return from artist in Library.database.Artists
+                       from album in artist.Albums
+                       from track in album.Tracks
+                       select track;
             }
         }
 
@@ -74,6 +79,7 @@ namespace Vibe.Music
             Library.database.Artists.Clear();
             Library.database.Playlists.Clear();
             Library.database.Compilations.Clear();
+            
             Library.cache = new(Application.Context);
             Library.cache.ConvertToUsableData().Execute(artist => Library.database.Artists.Add(artist));
         }
@@ -185,6 +191,7 @@ namespace Vibe.Music
                 (from entry in after.data
                  where before.data.ContainsKey(entry.Key) && !before.data[entry.Key].Equals(entry.Value)
                  select entry).Execute(entry => difference.changed.data.Add(entry.Key, entry.Value));
+                 
                 return difference;
             }
             
