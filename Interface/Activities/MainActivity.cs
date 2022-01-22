@@ -6,7 +6,9 @@ using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V4.View;
+using Android.Support.V4.Widget;
 using Android.Support.V7.App;
+using Android.Views;
 
 using Java.Lang;
 
@@ -16,6 +18,7 @@ using Vibe.Music;
 
 using Fragment = Android.Support.V4.App.Fragment;
 using FragmentManager = Android.Support.V4.App.FragmentManager;
+using Toolbar = Android.Support.V7.Widget.Toolbar;
 using String = Java.Lang.String;
 
 namespace Vibe.Interface.Activities
@@ -23,6 +26,29 @@ namespace Vibe.Interface.Activities
     [Activity(Label = "@string/app_name", Theme = "@style/Theme.Vibe", MainLauncher = false, NoHistory = false)]
     internal sealed class MainActivity : AppCompatActivity
     {
+        private DrawerLayout drawerLayout = null!;
+
+        private NavigationView navigationView = null!;
+
+        private NowPlayingFragment nowPlayingFragment = null!;
+        
+        public override bool OnOptionsItemSelected(IMenuItem item)
+        {
+            if (item.ItemId is not 16908332)
+            {
+                return base.OnOptionsItemSelected(item);
+            }
+            if (this.drawerLayout.IsDrawerOpen(this.navigationView))
+            {
+                this.drawerLayout.CloseDrawer(this.navigationView);
+            }
+            else
+            {
+                this.drawerLayout.OpenDrawer(this.navigationView);
+            }
+            return true;
+        }
+
         protected override void OnCreate(Bundle? savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -33,6 +59,16 @@ namespace Vibe.Interface.Activities
             pager.Adapter = new MainViewPagerAdapter(this.SupportFragmentManager);
             this.FindViewById<TabLayout>(Resource.Id.activity_main_tabs)!.SetupWithViewPager(pager);
             
+            this.SetSupportActionBar(this.FindViewById<Toolbar>(Resource.Id.activity_main_toolbar)!);
+            this.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+            this.SupportActionBar.SetDisplayShowTitleEnabled(false);
+            this.SupportActionBar.SetHomeButtonEnabled(true);
+            this.SupportActionBar.SetHomeAsUpIndicator(Resource.Drawable.icon_main_menu);
+            this.drawerLayout = this.FindViewById<DrawerLayout>(Resource.Id.activity_main_drawer)!;
+            this.navigationView = this.FindViewById<NavigationView>(Resource.Id.activity_main_navigator)!;
+            this.drawerLayout.CloseDrawer(this.navigationView);
+            this.navigationView.NavigationItemSelected += this.OnNavigationViewNavigationItemSelected;
+            
             if (savedInstanceState is null)
             {
                 Playback.Setup();
@@ -41,15 +77,39 @@ namespace Vibe.Interface.Activities
             Intent service = new(this, typeof(NowPlayingService));
             service.SetAction(ForegroundService.start);
             this.StartForegroundService(service);
+
+            this.nowPlayingFragment = (NowPlayingFragment)this.SupportFragmentManager.FindFragmentById(Resource.Id.activity_main_fragment_nowplaying);
+        }
+
+        protected override void OnResume()
+        {
+            base.OnResume();
+            if (this.nowPlayingFragment.IsHidden && Playback.NowPlaying is not null && Playback.PlayingState is not (Playback.MediaPlayerState.Completed or Playback.MediaPlayerState.Stopped or Playback.MediaPlayerState.End))
+            {
+                this.nowPlayingFragment.Show(true);
+            }
         }
 
         protected override void OnDestroy()
         {
             base.OnDestroy();
+            this.navigationView.NavigationItemSelected -= this.OnNavigationViewNavigationItemSelected;
             if (this.IsFinishing)
             {
                 Playback.End();
             }
+        }
+
+        private void OnNavigationViewNavigationItemSelected(object source, NavigationView.NavigationItemSelectedEventArgs eventArgs)
+        {
+            switch (eventArgs.MenuItem.ItemId)
+            {
+                case Resource.Id.menu_main_navigator_settings:
+                    break;
+                case Resource.Id.menu_main_navigator_about:
+                    break;
+            }
+            this.drawerLayout.CloseDrawer(this.navigationView);
         }
 
         private sealed class MainViewPagerAdapter : FragmentStatePagerAdapter

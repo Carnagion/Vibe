@@ -10,6 +10,7 @@
     <string name="notification_nowplaying_pause">Pause</string>
     <string name="notification_nowplaying_next">Next</string>
     <string name="notification_nowplaying_previous">Back</string>
+    <string name="activity_main_library_title">Your library</string>
     <string name="tab_artists">Artists</string>
     <string name="tab_albums">Albums</string>
     <string name="tab_tracks">Tracks</string>

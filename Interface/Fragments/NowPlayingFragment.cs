@@ -1,6 +1,7 @@
 using System;
 
 using Android.App;
+using Android.Arch.Lifecycle;
 using Android.Content;
 using Android.OS;
 using Android.Views;
@@ -56,7 +57,7 @@ namespace Vibe.Interface.Fragments
         {
             switch (eventArgs.ChangedTo)
             {
-                case Playback.MediaPlayerState.Stopped or Playback.MediaPlayerState.End:
+                case Playback.MediaPlayerState.Completed or Playback.MediaPlayerState.Stopped or Playback.MediaPlayerState.End:
                     this.Hide();
                     break;
                 default:
@@ -64,7 +65,7 @@ namespace Vibe.Interface.Fragments
                     {
                         break;
                     }
-                    if (this.IsHidden)
+                    if (this.IsHidden && this.Activity.Lifecycle.CurrentState.IsAtLeast(Lifecycle.State.Resumed))
                     {
                         this.Show();
                     }

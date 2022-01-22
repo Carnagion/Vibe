@@ -4,22 +4,28 @@ namespace Vibe.Interface.Fragments
 {
     internal abstract class HideableFragment : Fragment
     {
-        public void Show()
+        public void Show(bool instant = false)
         {
-            this.FragmentManager?.BeginTransaction()
+            FragmentTransaction? transaction = this.FragmentManager?.BeginTransaction()
                 .SetReorderingAllowed(true)
-                .SetCustomAnimations(Resource.Animation.abc_slide_in_bottom, Resource.Animation.abc_slide_out_bottom)
-                .Show(this)
-                .Commit();
+                .Show(this);
+            if (!instant)
+            {
+                transaction?.SetCustomAnimations(Resource.Animation.abc_slide_in_bottom, Resource.Animation.abc_slide_out_bottom);
+            }
+            transaction?.Commit();
         }
         
-        public void Hide()
+        public void Hide(bool instant = false)
         {
-            this.FragmentManager?.BeginTransaction()
+            FragmentTransaction? transaction = this.FragmentManager?.BeginTransaction()
                 .SetReorderingAllowed(true)
-                .SetCustomAnimations(Resource.Animation.abc_slide_in_bottom, Resource.Animation.abc_slide_out_bottom)
-                .Hide(this)
-                .Commit();
+                .Hide(this);
+            if (!instant)
+            {
+                transaction?.SetCustomAnimations(Resource.Animation.abc_slide_in_bottom, Resource.Animation.abc_slide_out_bottom);
+            }
+            transaction?.Commit();
         }
     }
 }
