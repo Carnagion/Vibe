@@ -42,7 +42,7 @@ namespace Vibe.Interface.Fragments
 
         protected override void OnListViewItemClick(Track item, int position, View? view)
         {
-            Playback.NewPlayingQueue(item.Yield().Concat(Library.Tracks));
+            Playback.NewPlayingQueue(this.Items.After(item).Prepend(item));
             Playback.Start();
         }
     }

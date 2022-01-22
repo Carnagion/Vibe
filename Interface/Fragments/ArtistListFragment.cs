@@ -1,8 +1,12 @@
 using System.Linq;
 
+using Android.App;
+using Android.Content;
+using Android.OS;
 using Android.Views;
 using Android.Widget;
 
+using Vibe.Interface.Activities;
 using Vibe.Music;
 
 namespace Vibe.Interface.Fragments
@@ -41,8 +45,11 @@ namespace Vibe.Interface.Fragments
 
         protected override void OnListViewItemClick(Artist item, int position, View? view)
         {
-            Playback.NewPlayingQueue(item.Tracks);
-            Playback.Start();
+            Bundle extras = new();
+            extras.PutLong("artistId", item.Id);
+            Intent intent = new(Application.Context, typeof(ArtistActivity));
+            intent.PutExtras(extras);
+            this.Activity.StartActivity(intent);
         }
     }
 }
