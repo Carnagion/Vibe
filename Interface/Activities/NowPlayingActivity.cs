@@ -2,6 +2,7 @@ using System;
 using System.Timers;
 
 using Android.App;
+using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.App;
 using Android.Views;
@@ -17,6 +18,8 @@ namespace Vibe.Interface.Activities
         private TextView trackTitle = null!;
 
         private TextView trackInfo = null!;
+
+        private ImageView trackImage = null!;
 
         private ImageButton pauseButton = null!;
 
@@ -45,6 +48,7 @@ namespace Vibe.Interface.Activities
             
             this.trackTitle = this.FindViewById<TextView>(Resource.Id.activity_nowplaying_tracktitle)!;
             this.trackInfo = this.FindViewById<TextView>(Resource.Id.activity_nowplaying_trackinfo)!;
+            this.trackImage = this.FindViewById<ImageView>(Resource.Id.activity_nowplaying_trackimage)!;
             
             this.pauseButton = this.FindViewById<ImageButton>(Resource.Id.activity_nowplaying_pause)!;
             this.pauseButton.Click += this.OnPauseButtonClick;
@@ -104,6 +108,7 @@ namespace Vibe.Interface.Activities
             
             this.trackTitle.Text = Playback.NowPlaying.Title;
             this.trackInfo.Text = $"{Playback.NowPlaying.Album.Title} · {Playback.NowPlaying.Artist.Name}";
+            this.trackImage.SetImageBitmap(Playback.NowPlaying.Album.Artwork);
             
             switch (eventArgs.ChangedTo)
             {

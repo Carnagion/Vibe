@@ -4,7 +4,10 @@ using System.Linq;
 using Android.App;
 using Android.Content;
 using Android.Database;
+using Android.Graphics;
 using Android.Provider;
+
+using Uri = Android.Net.Uri;
 
 namespace Vibe.Music
 {
@@ -133,6 +136,7 @@ namespace Vibe.Music
                 {
                     return;
                 }
+                Dictionary<long, Bitmap?> loadedArtworks = new();
                 while (cursor.MoveToNext())
                 {
                     if (cursor.GetString(0) is not "1")
@@ -150,16 +154,30 @@ namespace Vibe.Music
                     string artistName = cursor.GetString(8)!;
                     long artistId = cursor.GetLong(9);
 
+                    Uri albumArtUri = ContentUris.WithAppendedId(MediaStore.Audio.Media.ExternalContentUri!, trackId);
+                    if (!loadedArtworks.TryGetValue(albumId, out Bitmap? albumArt))
+                    {
+                        try
+                        {
+                            albumArt = context.ContentResolver!.LoadThumbnail(albumArtUri, new(256, 256), null);
+                        }
+                        catch
+                        {
+                            albumArt = null;
+                        }
+                        loadedArtworks[albumId] = albumArt;
+                    }
+
                     (long id, string name) artist = (artistId, artistName);
-                    (long id, string title) album = (albumId, albumTitle);
+                    (long id, string title, Bitmap? cover) album = (albumId, albumTitle, albumArt);
                     (long id, string path, string title, uint duration, int index) track = (trackId, trackPath, trackTitle, trackDuration, trackIndex);
 
-                    Dictionary<(long id, string name), Dictionary<(long id, string title), List<(long id, string path, string title, uint duration, int index)>>> artists = this.data;
+                    Dictionary<(long id, string name), Dictionary<(long id, string title, Bitmap? cover), List<(long id, string path, string title, uint duration, int index)>>> artists = this.data;
                     if (!artists.ContainsKey(artist))
                     {
                         artists.Add(artist, new());
                     }
-                    Dictionary<(long id, string title), List<(long id, string path, string title, uint duration, int index)>> albums = artists[artist];
+                    Dictionary<(long id, string title, Bitmap? cover), List<(long id, string path, string title, uint duration, int index)>> albums = artists[artist];
                     if (!albums.ContainsKey(album))
                     {
                         albums.Add(album, new());
@@ -174,7 +192,7 @@ namespace Vibe.Music
             {
             }
 
-            private readonly Dictionary<(long id, string name), Dictionary<(long id, string title), List<(long id, string path, string title, uint duration, int index)>>> data = new();
+            private readonly Dictionary<(long id, string name), Dictionary<(long id, string title, Bitmap? cover), List<(long id, string path, string title, uint duration, int index)>>> data = new();
             
             internal static (MusicDataQuery removed, MusicDataQuery changed, MusicDataQuery missing) DifferenceBetween(MusicDataQuery before, MusicDataQuery after)
             {
@@ -202,7 +220,7 @@ namespace Vibe.Music
                                     let tracks = from trackEntry in albumEntry.Value
                                                  orderby trackEntry.index
                                                  select new Track(trackEntry.id, trackEntry.path, trackEntry.title, trackEntry.duration)
-                                    select new Album(albumEntry.Key.id, albumEntry.Key.title, tracks)
+                                    select new Album(albumEntry.Key.id, albumEntry.Key.title, albumEntry.Key.cover, tracks)
                        select new Artist(artistEntry.Key.id, artistEntry.Key.name, albums);
             }
         }

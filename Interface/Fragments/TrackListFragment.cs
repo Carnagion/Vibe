@@ -35,7 +35,8 @@ namespace Vibe.Interface.Fragments
 
         protected override void OnListItemViewGet(Track item, int position, View? view)
         {
-            view!.FindViewById<TextView>(Resource.Id.list_track_item_title)!.Text = item.Title;
+            view!.FindViewById<ImageView>(Resource.Id.list_track_item_image)!.SetImageBitmap(item.Album.Artwork);
+            view.FindViewById<TextView>(Resource.Id.list_track_item_title)!.Text = item.Title;
             view.FindViewById<TextView>(Resource.Id.list_track_item_info)!.Text = $"{item.Album.Title} · {item.Artist.Name}";
         }
 

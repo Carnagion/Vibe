@@ -42,7 +42,8 @@ namespace Vibe.Interface.Fragments
 
         private void UpdateTrackInfo()
         {
-            this.view.FindViewById<TextView>(Resource.Id.fragment_nowplaying_tracktitle)!.Text = Playback.NowPlaying!.Title;
+            this.view.FindViewById<ImageView>(Resource.Id.fragment_nowplaying_trackimage)!.SetImageBitmap(Playback.NowPlaying!.Album.Artwork);
+            this.view.FindViewById<TextView>(Resource.Id.fragment_nowplaying_tracktitle)!.Text = Playback.NowPlaying.Title;
             this.view.FindViewById<TextView>(Resource.Id.fragment_nowplaying_trackinfo)!.Text = $"{Playback.NowPlaying.Album.Title} · {Playback.NowPlaying.Artist.Name}";
         }
 

@@ -1,3 +1,5 @@
+using System.Linq;
+
 using Android.Views;
 using Android.Widget;
 
@@ -33,7 +35,8 @@ namespace Vibe.Interface.Fragments
 
         protected override void OnListItemViewGet(Artist item, int position, View? view)
         {
-            view!.FindViewById<TextView>(Resource.Id.list_artist_item_name)!.Text = item.Name;
+            view!.FindViewById<ImageView>(Resource.Id.list_artist_item_image)!.SetImageBitmap(item.Albums.First().Artwork);
+            view.FindViewById<TextView>(Resource.Id.list_artist_item_name)!.Text = item.Name;
         }
 
         protected override void OnListViewItemClick(Artist item, int position, View? view)
