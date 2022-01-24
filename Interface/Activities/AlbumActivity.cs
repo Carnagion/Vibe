@@ -16,6 +16,7 @@ using Vibe.Music;
 
 using Fragment = Android.Support.V4.App.Fragment;
 using FragmentManager = Android.Support.V4.App.FragmentManager;
+using Toolbar = Android.Support.V7.Widget.Toolbar;
 using String = Java.Lang.String;
 
 namespace Vibe.Interface.Activities
@@ -25,7 +26,11 @@ namespace Vibe.Interface.Activities
     {
         private Album album = null!;
 
-        private ImageButton backButton = null!;
+        public override bool OnSupportNavigateUp()
+        {
+            this.OnBackPressed();
+            return true;
+        }
 
         protected override void OnCreate(Bundle? savedInstanceState)
         {
@@ -43,20 +48,10 @@ namespace Vibe.Interface.Activities
             this.FindViewById<TabLayout>(Resource.Id.activity_album_tabs)!.SetupWithViewPager(pager);
 
             this.FindViewById<TextView>(Resource.Id.activity_album_albumtitle)!.Text = this.album.Title;
-
-            this.backButton = this.FindViewById<ImageButton>(Resource.Id.activity_album_back)!;
-            this.backButton.Click += this.OnBackButtonClick;
-        }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            this.backButton.Click -= this.OnBackButtonClick;
-        }
-
-        private void OnBackButtonClick(object source, EventArgs eventArgs)
-        {
-            this.OnBackPressed();
+            
+            this.SetSupportActionBar(this.FindViewById<Toolbar>(Resource.Id.activity_album_toolbar)!);
+            this.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+            this.SupportActionBar.SetDisplayShowHomeEnabled(true);
         }
 
         private sealed class AlbumViewPagerAdapter : FragmentStatePagerAdapter

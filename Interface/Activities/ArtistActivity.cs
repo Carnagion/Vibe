@@ -17,6 +17,7 @@ using Vibe.Utility.Extensions;
 
 using Fragment = Android.Support.V4.App.Fragment;
 using FragmentManager = Android.Support.V4.App.FragmentManager;
+using Toolbar = Android.Support.V7.Widget.Toolbar;
 using String = Java.Lang.String;
 
 namespace Vibe.Interface.Activities
@@ -26,9 +27,13 @@ namespace Vibe.Interface.Activities
     {
         private Artist artist = null!;
 
-        private ImageButton backButton = null!;
-
         private NowPlayingFragment nowPlayingFragment = null!;
+
+        public override bool OnSupportNavigateUp()
+        {
+            this.OnBackPressed();
+            return true;
+        }
         
         protected override void OnCreate(Bundle? savedInstanceState)
         {
@@ -48,9 +53,10 @@ namespace Vibe.Interface.Activities
             this.FindViewById<TextView>(Resource.Id.activity_artist_artistname)!.Text = this.artist.Name;
 
             this.nowPlayingFragment = (NowPlayingFragment)this.SupportFragmentManager.FindFragmentById(Resource.Id.activity_artist_fragment_nowplaying);
-
-            this.backButton = this.FindViewById<ImageButton>(Resource.Id.activity_artist_back)!;
-            this.backButton.Click += this.OnBackButtonClick;
+            
+            this.SetSupportActionBar(this.FindViewById<Toolbar>(Resource.Id.activity_artist_toolbar)!);
+            this.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+            this.SupportActionBar.SetDisplayShowHomeEnabled(true);
         }
 
         protected override void OnResume()
@@ -60,17 +66,6 @@ namespace Vibe.Interface.Activities
             {
                 this.nowPlayingFragment.Show(true);
             }
-        }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            this.backButton.Click -= this.OnBackButtonClick;
-        }
-
-        private void OnBackButtonClick(object source, EventArgs eventArgs)
-        {
-            this.OnBackPressed();
         }
 
         private sealed class ArtistViewPagerAdapter : FragmentStatePagerAdapter

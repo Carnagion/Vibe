@@ -1,31 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-    <RelativeLayout android:id="@+id/activity_nowplaying_topbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-        <ImageButton android:id="@+id/activity_nowplaying_back"
-                     android:layout_width="56dp"
-                     android:layout_height="56dp"
-                     android:alpha="0.67"
-                     android:background="@color/background"
-                     android:src="@drawable/icon_nowplaying_back"/>
-        <TextView android:id="@+id/activity_nowplaying_toptext"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:gravity="center"
-                  android:padding="16dp"
-                  android:textAppearance="@style/Text.Vibe.Miscellaneous.Ubuntu"
-                  android:textSize="16sp"
-                  android:text="@string/activity_nowplaying_toptext"/>
-    </RelativeLayout>
+    <android.support.design.widget.AppBarLayout android:id="@+id/activity_nowplaying_appbar"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:background="@color/background"
+                                                android:elevation="8dp"
+                                                app:layout_scrollFlags="scroll|enterAlways">
+        <android.support.v7.widget.Toolbar android:id="@+id/activity_nowplaying_toolbar"
+                                           android:layout_width="match_parent"
+                                           android:layout_height="wrap_content"
+                                           app:contentInsetStart="0dp"
+                                           app:contentInsetEnd="0dp"
+                                           app:layout_scrollFlags="scroll|enterAlways">
+            <RelativeLayout android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                <TextView android:id="@+id/activity_nowplaying_toptext"
+                          android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:textAppearance="@style/Text.Vibe.Miscellaneous.Ubuntu"
+                          android:textSize="16sp"
+                          android:text="@string/activity_nowplaying_toptext"/>
+            </RelativeLayout>
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
     <RelativeLayout android:id="@+id/activity_nowplaying_content"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_below="@id/activity_nowplaying_topbar" 
+                    android:layout_below="@id/activity_nowplaying_appbar" 
                     android:layout_above="@id/activity_nowplaying_controls"
+                    android:gravity="center_vertical"
                     android:padding="16dp">
         <ImageView android:id="@+id/activity_nowplaying_trackimage"
                    android:layout_width="256dp"

@@ -10,6 +10,8 @@ using Android.Widget;
 
 using Vibe.Music;
 
+using Toolbar = Android.Support.V7.Widget.Toolbar;
+
 namespace Vibe.Interface.Activities
 {
     [Activity(Label = "@string/app_name", Theme = "@style/Theme.Vibe", MainLauncher = false, NoHistory = false)]
@@ -27,8 +29,6 @@ namespace Vibe.Interface.Activities
 
         private ImageButton skipPrevious = null!;
 
-        private ImageButton backButton = null!;
-
         private SeekBar seekBar = null!;
 
         private Timer seekTimer = null!;
@@ -38,13 +38,22 @@ namespace Vibe.Interface.Activities
         private TextView currentDuration = null!;
 
         private TextView maxDuration = null!;
-        
+
+        public override bool OnSupportNavigateUp()
+        {
+            this.OnBackPressed();
+            return true;
+        }
+
         protected override void OnCreate(Bundle? savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             
             this.SetContentView(Resource.Layout.activity_nowplaying);
-            this.Window?.SetFlags(WindowManagerFlags.BlurBehind, WindowManagerFlags.BlurBehind);
+            
+            this.SetSupportActionBar(this.FindViewById<Toolbar>(Resource.Id.activity_nowplaying_toolbar)!);
+            this.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+            this.SupportActionBar.SetDisplayShowHomeEnabled(true);
             
             this.trackTitle = this.FindViewById<TextView>(Resource.Id.activity_nowplaying_tracktitle)!;
             this.trackInfo = this.FindViewById<TextView>(Resource.Id.activity_nowplaying_trackinfo)!;
@@ -75,16 +84,11 @@ namespace Vibe.Interface.Activities
             
             Playback.MediaPlayerStateChanged += this.OnPlaybackMediaPlayerStateChanged;
             this.OnPlaybackMediaPlayerStateChanged(null!, new(Playback.PlayingState, Playback.PlayingState));
-            
-            this.backButton = this.FindViewById<ImageButton>(Resource.Id.activity_nowplaying_back)!;
-            this.backButton.Click += this.OnBackButtonClicked;
         }
 
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            
-            this.backButton.Click -= this.OnBackButtonClicked;
             
             Playback.MediaPlayerStateChanged -= this.OnPlaybackMediaPlayerStateChanged;
             
@@ -174,11 +178,6 @@ namespace Vibe.Interface.Activities
         {
             Playback.CurrentPosition = (uint)this.seekBar.Progress;
             this.moveSeekBar = true;
-        }
-
-        private void OnBackButtonClicked(object source, EventArgs eventArgs)
-        {
-            this.OnBackPressed();
         }
     }
 }
