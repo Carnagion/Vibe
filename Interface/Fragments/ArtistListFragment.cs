@@ -2,6 +2,7 @@ using System.Linq;
 
 using Android.App;
 using Android.Content;
+using Android.Graphics;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
@@ -39,7 +40,18 @@ namespace Vibe.Interface.Fragments
 
         protected override void OnListItemViewGet(Artist item, int position, View? view)
         {
-            view!.FindViewById<ImageView>(Resource.Id.list_artist_item_image)!.SetImageBitmap(item.Albums.First().Artwork);
+            ImageView image = view!.FindViewById<ImageView>(Resource.Id.list_artist_item_image)!;
+            Bitmap? artwork = item.Albums.First().Artwork;
+            if (artwork is null)
+            {
+                image.SetPadding(0, 16, 0, 0);
+                image.SetImageResource(Resource.Drawable.artist);
+            }
+            else
+            {
+                image.SetPadding(0, 0, 0, 0);
+                image.SetImageBitmap(artwork);
+            }
             view.FindViewById<TextView>(Resource.Id.list_artist_item_name)!.Text = item.Name;
         }
 

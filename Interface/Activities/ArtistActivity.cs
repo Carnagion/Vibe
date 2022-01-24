@@ -13,6 +13,7 @@ using Java.Lang;
 
 using Vibe.Interface.Fragments;
 using Vibe.Music;
+using Vibe.Utility.Extensions;
 
 using Fragment = Android.Support.V4.App.Fragment;
 using FragmentManager = Android.Support.V4.App.FragmentManager;
@@ -24,6 +25,8 @@ namespace Vibe.Interface.Activities
     internal sealed class ArtistActivity : AppCompatActivity
     {
         private Artist artist = null!;
+
+        private ImageButton backButton = null!;
 
         private NowPlayingFragment nowPlayingFragment = null!;
         
@@ -45,6 +48,9 @@ namespace Vibe.Interface.Activities
             this.FindViewById<TextView>(Resource.Id.activity_artist_artistname)!.Text = this.artist.Name;
 
             this.nowPlayingFragment = (NowPlayingFragment)this.SupportFragmentManager.FindFragmentById(Resource.Id.activity_artist_fragment_nowplaying);
+
+            this.backButton = this.FindViewById<ImageButton>(Resource.Id.activity_artist_back)!;
+            this.backButton.Click += this.OnBackButtonClick;
         }
 
         protected override void OnResume()
@@ -54,6 +60,17 @@ namespace Vibe.Interface.Activities
             {
                 this.nowPlayingFragment.Show(true);
             }
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            this.backButton.Click -= this.OnBackButtonClick;
+        }
+
+        private void OnBackButtonClick(object source, EventArgs eventArgs)
+        {
+            this.OnBackPressed();
         }
 
         private sealed class ArtistViewPagerAdapter : FragmentStatePagerAdapter

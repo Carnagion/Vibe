@@ -15,6 +15,7 @@ using Java.Lang;
 using Vibe.Interface.Fragments;
 using Vibe.Interface.Services;
 using Vibe.Music;
+using Vibe.Utility.Extensions;
 
 using Fragment = Android.Support.V4.App.Fragment;
 using FragmentManager = Android.Support.V4.App.FragmentManager;
@@ -93,11 +94,14 @@ namespace Vibe.Interface.Activities
         protected override void OnDestroy()
         {
             base.OnDestroy();
+            
             this.navigationView.NavigationItemSelected -= this.OnNavigationViewNavigationItemSelected;
-            if (this.IsFinishing)
+            
+            if (!this.IsFinishing)
             {
-                Playback.End();
+                return;
             }
+            Playback.End();
         }
 
         private void OnNavigationViewNavigationItemSelected(object source, NavigationView.NavigationItemSelectedEventArgs eventArgs)

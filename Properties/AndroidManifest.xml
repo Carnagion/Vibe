@@ -4,7 +4,8 @@
           android:versionCode="1" 
           android:versionName="1.0" 
           package="Carnagion.Vibe">
-  <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="30" />
+  <uses-sdk android:minSdkVersion="21"
+            android:targetSdkVersion="30" />
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
   <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION"/>
@@ -16,7 +17,8 @@
                android:icon="@mipmap/logo"
                android:supportsRtl="true"
                android:theme="@style/Theme.Vibe">
-      <meta-data android:name="preloaded_fonts" android:resource="@array/preloaded_fonts"/>
+      <meta-data android:name="preloaded_fonts"
+                 android:resource="@array/preloaded_fonts"/>
     <service android:name="Vibe.Interface.Services.NowPlayingService"
              android:foregroundServiceType="mediaPlayback"/>
   </application>

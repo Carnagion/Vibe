@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Android.Graphics;
-using Android.Media;
 
 namespace Vibe.Music
 {

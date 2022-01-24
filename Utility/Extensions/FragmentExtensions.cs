@@ -1,14 +1,14 @@
 using Android.Support.V4.App;
 
-namespace Vibe.Interface.Fragments
+namespace Vibe.Utility.Extensions
 {
-    internal abstract class HideableFragment : Fragment
+    internal static class FragmentExtensions
     {
-        public void Show(bool instant = false)
+        internal static void Show(this Fragment fragment, bool instant = false)
         {
-            FragmentTransaction? transaction = this.FragmentManager?.BeginTransaction()
+            FragmentTransaction? transaction = fragment.FragmentManager?.BeginTransaction()
                 .SetReorderingAllowed(true)
-                .Show(this);
+                .Show(fragment);
             if (!instant)
             {
                 transaction?.SetCustomAnimations(Resource.Animation.abc_slide_in_bottom, Resource.Animation.abc_slide_out_bottom);
@@ -16,11 +16,11 @@ namespace Vibe.Interface.Fragments
             transaction?.Commit();
         }
         
-        public void Hide(bool instant = false)
+        internal static void Hide(this Fragment fragment, bool instant = false)
         {
-            FragmentTransaction? transaction = this.FragmentManager?.BeginTransaction()
+            FragmentTransaction? transaction = fragment.FragmentManager?.BeginTransaction()
                 .SetReorderingAllowed(true)
-                .Hide(this);
+                .Hide(fragment);
             if (!instant)
             {
                 transaction?.SetCustomAnimations(Resource.Animation.abc_slide_in_bottom, Resource.Animation.abc_slide_out_bottom);

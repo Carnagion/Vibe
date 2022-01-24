@@ -68,7 +68,6 @@
         <Compile Include="Interface\Activities\SplashActivity.cs" />
         <Compile Include="Interface\Fragments\AlbumListFragment.cs" />
         <Compile Include="Interface\Fragments\ArtistListFragment.cs" />
-        <Compile Include="Interface\Fragments\HideableFragment.cs" />
         <Compile Include="Interface\Fragments\NowPlayingFragment.cs" />
         <Compile Include="Interface\Fragments\SelectableListFragment.cs" />
         <Compile Include="Interface\Fragments\TrackListFragment.cs" />
@@ -84,6 +83,7 @@
         <Compile Include="Music\Track.cs" />
         <Compile Include="Resources\Resource.Designer.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="Utility\Extensions\FragmentExtensions.cs" />
     </ItemGroup>
     <ItemGroup>
         <None Include="Resources\AboutResources.txt" />

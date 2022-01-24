@@ -9,10 +9,13 @@ using Android.Widget;
 
 using Vibe.Interface.Activities;
 using Vibe.Music;
+using Vibe.Utility.Extensions;
+
+using Fragment = Android.Support.V4.App.Fragment;
 
 namespace Vibe.Interface.Fragments
 {
-    internal sealed class NowPlayingFragment : HideableFragment
+    internal sealed class NowPlayingFragment : Fragment
     {
         private View view = null!;
         

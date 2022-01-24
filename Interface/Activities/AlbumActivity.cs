@@ -24,11 +24,13 @@ namespace Vibe.Interface.Activities
     internal sealed class AlbumActivity : AppCompatActivity
     {
         private Album album = null!;
-        
+
+        private ImageButton backButton = null!;
+
         protected override void OnCreate(Bundle? savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            
+
             this.SetContentView(Resource.Layout.activity_album);
 
             long albumId = this.Intent!.GetLongExtra("albumId", default);
@@ -41,6 +43,20 @@ namespace Vibe.Interface.Activities
             this.FindViewById<TabLayout>(Resource.Id.activity_album_tabs)!.SetupWithViewPager(pager);
 
             this.FindViewById<TextView>(Resource.Id.activity_album_albumtitle)!.Text = this.album.Title;
+
+            this.backButton = this.FindViewById<ImageButton>(Resource.Id.activity_album_back)!;
+            this.backButton.Click += this.OnBackButtonClick;
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            this.backButton.Click -= this.OnBackButtonClick;
+        }
+
+        private void OnBackButtonClick(object source, EventArgs eventArgs)
+        {
+            this.OnBackPressed();
         }
 
         private sealed class AlbumViewPagerAdapter : FragmentStatePagerAdapter
