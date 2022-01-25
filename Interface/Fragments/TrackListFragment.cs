@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Android.Graphics;
@@ -5,11 +7,16 @@ using Android.Views;
 using Android.Widget;
 
 using Vibe.Music;
+using Vibe.Utility.Extensions;
 
 namespace Vibe.Interface.Fragments
 {
     internal sealed class TrackListFragment : SelectableListFragment<Track>
     {
+        private readonly Dictionary<ImageButton, Track> menuMappings = new();
+
+        private ImageButton currentClickedMenu = null!;
+
         protected override int FragmentViewId
         {
             get
@@ -48,14 +55,43 @@ namespace Vibe.Interface.Fragments
                 image.SetPadding(0, 0, 0, 0);
                 image.SetImageBitmap(artwork);
             }
+            
             view.FindViewById<TextView>(Resource.Id.list_track_item_title)!.Text = item.Title;
             view.FindViewById<TextView>(Resource.Id.list_track_item_info)!.Text = $"{item.Album.Title} · {item.Artist.Name}";
+            
+            ImageButton more = view.FindViewById<ImageButton>(Resource.Id.list_track_item_more)!;
+            more.Focusable = false;
+            this.menuMappings[more] = item;
+            more.Click -= this.OnMoreMenuClick;
+            more.Click += this.OnMoreMenuClick;
         }
 
         protected override void OnListViewItemClick(Track item, int position, View? view)
         {
             Playback.NewPlayingQueue(this.Items.After(item).Prepend(item));
             Playback.Start();
+        }
+
+        private void OnMoreMenuClick(object source, EventArgs eventArgs)
+        {
+            ImageButton more = (ImageButton)source;
+            PopupMenu popup = more.ShowPopupMenu(Resource.Menu.menu_more_track, Resource.Style.Menu_Vibe_Popup, GravityFlags.End);
+            this.currentClickedMenu = more;
+            popup.MenuItemClick += this.OnCurrentClickedMenuMenuItemClick;
+        }
+
+        private void OnCurrentClickedMenuMenuItemClick(object source, PopupMenu.MenuItemClickEventArgs eventArgs)
+        {
+            Track track = this.menuMappings[this.currentClickedMenu];
+            switch (eventArgs.Item?.ItemId)
+            {
+                case Resource.Id.menu_more_track_insert:
+                    Playback.InsertNextInQueue(track);
+                    break;
+                case Resource.Id.menu_more_track_append:
+                    Playback.AddToQueue(track);
+                    break;
+            }
         }
     }
 }
