@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 using Android.App;
 using Android.Content;
 using Android.Graphics;
@@ -7,11 +11,16 @@ using Android.Widget;
 
 using Vibe.Interface.Activities;
 using Vibe.Music;
+using Vibe.Utility.Extensions;
 
 namespace Vibe.Interface.Fragments
 {
     internal sealed class AlbumListFragment : SelectableListFragment<Album>
     {
+        private readonly Dictionary<ImageButton, Album> menuMappings = new();
+
+        private ImageButton currentClickedMenu = null!;
+
         protected override int FragmentViewId
         {
             get
@@ -48,8 +57,15 @@ namespace Vibe.Interface.Fragments
             {
                 image.SetImageBitmap(artwork);
             }
+            
             view.FindViewById<TextView>(Resource.Id.list_album_item_title)!.Text = item.Title;
             view.FindViewById<TextView>(Resource.Id.list_album_item_info)!.Text = item.Artist.Name;
+            
+            ImageButton more = view.FindViewById<ImageButton>(Resource.Id.list_album_item_more)!;
+            more.Focusable = false;
+            this.menuMappings[more] = item;
+            more.Click -= this.OnMoreMenuClick;
+            more.Click += this.OnMoreMenuClick;
         }
 
         protected override void OnListViewItemClick(Album item, int position, View? view)
@@ -59,6 +75,38 @@ namespace Vibe.Interface.Fragments
             Intent intent = new(Application.Context, typeof(AlbumActivity));
             intent.PutExtras(extras);
             this.Activity.StartActivity(intent);
+        }
+
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+            this.menuMappings.Clear();
+        }
+
+        private void OnMoreMenuClick(object source, EventArgs eventArgs)
+        {
+            ImageButton more = (ImageButton)source;
+            PopupMenu popup = more.ShowPopupMenu(Resource.Menu.menu_more_album, Resource.Style.Menu_Vibe_Popup, GravityFlags.End);
+            this.currentClickedMenu = more;
+            popup.MenuItemClick += this.OnCurrentClickedMenuMenuItemClick;
+        }
+
+        private void OnCurrentClickedMenuMenuItemClick(object source, PopupMenu.MenuItemClickEventArgs eventArgs)
+        {
+            Album album = this.menuMappings[this.currentClickedMenu];
+            switch (eventArgs.Item?.ItemId)
+            {
+                case Resource.Id.menu_more_album_play:
+                    Playback.NewPlayingQueue(album.Tracks);
+                    Playback.Start();
+                    break;
+                case Resource.Id.menu_more_album_insert:
+                    album.Tracks.Reverse().Execute(Playback.InsertNextInQueue);
+                    break;
+                case Resource.Id.menu_more_album_append:
+                    album.Tracks.Execute(Playback.AddToQueue);
+                    break;
+            }
         }
     }
 }

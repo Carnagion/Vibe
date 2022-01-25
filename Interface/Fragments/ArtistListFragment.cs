@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Android.App;
@@ -9,11 +11,16 @@ using Android.Widget;
 
 using Vibe.Interface.Activities;
 using Vibe.Music;
+using Vibe.Utility.Extensions;
 
 namespace Vibe.Interface.Fragments
 {
     internal sealed class ArtistListFragment : SelectableListFragment<Artist>
     {
+        private readonly Dictionary<ImageButton, Artist> menuMappings = new();
+
+        private ImageButton currentClickedMenu = null!;
+
         protected override int FragmentViewId
         {
             get
@@ -52,7 +59,15 @@ namespace Vibe.Interface.Fragments
                 image.SetPadding(0, 0, 0, 0);
                 image.SetImageBitmap(artwork);
             }
+            
             view.FindViewById<TextView>(Resource.Id.list_artist_item_name)!.Text = item.Name;
+            view.FindViewById<ImageButton>(Resource.Id.list_artist_item_more)!.Focusable = false;
+            
+            ImageButton more = view.FindViewById<ImageButton>(Resource.Id.list_artist_item_more)!;
+            more.Focusable = false;
+            this.menuMappings[more] = item;
+            more.Click -= this.OnMoreMenuClick;
+            more.Click += this.OnMoreMenuClick;
         }
 
         protected override void OnListViewItemClick(Artist item, int position, View? view)
@@ -62,6 +77,32 @@ namespace Vibe.Interface.Fragments
             Intent intent = new(Application.Context, typeof(ArtistActivity));
             intent.PutExtras(extras);
             this.Activity.StartActivity(intent);
+        }
+
+        private void OnMoreMenuClick(object source, EventArgs eventArgs)
+        {
+            ImageButton more = (ImageButton)source;
+            PopupMenu popup = more.ShowPopupMenu(Resource.Menu.menu_more_artist, Resource.Style.Menu_Vibe_Popup, GravityFlags.End);
+            this.currentClickedMenu = more;
+            popup.MenuItemClick += this.OnCurrentClickedMenuMenuItemClick;
+        }
+
+        private void OnCurrentClickedMenuMenuItemClick(object source, PopupMenu.MenuItemClickEventArgs eventArgs)
+        {
+            Artist artist = this.menuMappings[this.currentClickedMenu];
+            switch (eventArgs.Item?.ItemId)
+            {
+                case Resource.Id.menu_more_artist_play:
+                    Playback.NewPlayingQueue(artist.Tracks);
+                    Playback.Start();
+                    break;
+                case Resource.Id.menu_more_artist_insert:
+                    artist.Tracks.Reverse().Execute(Playback.InsertNextInQueue);
+                    break;
+                case Resource.Id.menu_more_artist_append:
+                    artist.Tracks.Execute(Playback.AddToQueue);
+                    break;
+            }
         }
     }
 }

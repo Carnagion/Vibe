@@ -12,12 +12,20 @@
                android:backgroundTint="@color/background_elevation_2"/>
     <TextView android:id="@+id/list_artist_item_name"
               android:layout_width="match_parent"
-              android:layout_height="64dp"
+              android:layout_height="80dp"
+              android:layout_toLeftOf="@id/list_artist_item_more"
               android:layout_toRightOf="@id/list_artist_item_image"
               android:gravity="center_vertical"
-              android:layout_margin="8dp"
+              android:layout_marginLeft="8dp"
               android:textAppearance="@style/Text.Vibe.Title.Ubuntu"
               android:textSize="14sp"
               android:maxLines="1"
               android:ellipsize="end"/>
+    <ImageButton android:id="@+id/list_artist_item_more"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_alignParentRight="true"
+                 android:layout_centerVertical="true"
+                 android:background="?attr/selectableItemBackgroundBorderless"
+                 android:src="@drawable/icon_list_item_more"/>
 </RelativeLayout>
