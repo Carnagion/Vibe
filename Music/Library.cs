@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Xml;
 
 using Android.App;
 using Android.Content;
@@ -7,6 +11,7 @@ using Android.Database;
 using Android.Graphics;
 using Android.Provider;
 
+using Path = System.IO.Path;
 using Uri = Android.Net.Uri;
 
 namespace Vibe.Music
@@ -58,34 +63,32 @@ namespace Vibe.Music
             }
         }
 
-        public static IEnumerable<Playlist> Playlists
+        /// <summary>
+        /// All the <see cref="Playlist"/>s in <see cref="Library"/>'s database.
+        /// </summary>
+        public static HashSet<Playlist> Playlists
         {
             get
             {
-                return Library.database.Playlists.Copy();
-            }
-        }
-
-        public static IEnumerable<Compilation> Compilations
-        {
-            get
-            {
-                return Library.database.Compilations.Copy();
+                return Library.database.Playlists;
             }
         }
 
         /// <summary>
-        /// Clears any stored <see cref="Artist"/>s, <see cref="Album"/>s, and <see cref="Track"/>s, then scans for any media files in the device and adds them to the database.
+        /// All the <see cref="Compilation"/>s in <see cref="Library"/>'s database.
         /// </summary>
-        public static void BuildDatabase()
+        public static HashSet<Compilation> Compilations
         {
-            Library.database.Artists.Clear();
-            Library.database.Playlists.Clear();
-            Library.database.Compilations.Clear();
-            
-            Library.cache = new(Application.Context);
-            Library.cache.ConvertToUsableData().Execute(artist => Library.database.Artists.Add(artist));
+            get
+            {
+                return Library.database.Compilations;
+            }
         }
+
+        private static string PlaylistsFilePath
+        {
+            get;
+        } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Playlists.xml");
 
         /// <summary>
         /// Searches the device for changes to media files, updating the stored <see cref="Artist"/>s, <see cref="Album"/>s, and <see cref="Track"/>s as necessary.
@@ -99,17 +102,96 @@ namespace Vibe.Music
             }
             
             MusicDataQuery updated = new(Application.Context);
-            (MusicDataQuery removed, MusicDataQuery changed, MusicDataQuery missing) = MusicDataQuery.DifferenceBetween(Library.cache, updated);
+            (MusicDataQuery removed, MusicDataQuery changed, MusicDataQuery added) = MusicDataQuery.DifferenceBetween(Library.cache, updated);
+            Library.cache = updated;
             
-            removed.ConvertToUsableData().Execute(artist => Library.database.Artists.Add(artist));
-            changed.ConvertToUsableData().Execute(artist =>
+            removed.ConvertToUsableData().ForEach(artist => Library.database.Artists.RemoveWhere(existing => existing.Id == artist.Id));
+            changed.ConvertToUsableData().ForEach(artist =>
             {
                 Library.database.Artists.RemoveWhere(existing => existing.Id == artist.Id);
                 Library.database.Artists.Add(artist);
             });
-            missing.ConvertToUsableData().Execute(artist => Library.database.Artists.Add(artist));
+            added.ConvertToUsableData().ForEach(artist => Library.database.Artists.Add(artist));
 
-            Library.cache = updated;
+            Library.FetchStoredPlaylists().ForEach(playlist => Library.database.Playlists.Add(playlist));
+        }
+
+        internal static void SavePersistentData()
+        {
+            Playlist playlist = new(Library.Tracks.Random().Yield().Append(Library.Tracks.Random()))
+            {
+                Title = "Test playlist",
+            };
+            Library.database.Playlists.Add(playlist);
+            Library.StorePlaylists();
+        }
+
+        private static void BuildDatabase()
+        {
+            Library.database.Artists.Clear();
+            Library.database.Playlists.Clear();
+            Library.database.Compilations.Clear();
+            
+            Library.cache = new(Application.Context);
+            Library.cache.ConvertToUsableData().ForEach(artist => Library.database.Artists.Add(artist));
+            
+            Library.FetchStoredPlaylists().ForEach(playlist => Library.database.Playlists.Add(playlist));
+        }
+
+        private static IEnumerable<Playlist> FetchStoredPlaylists()
+        {
+            if (!File.Exists(Library.PlaylistsFilePath))
+            {
+                return Enumerable.Empty<Playlist>();
+            }
+
+            try
+            {
+                XmlDocument document = new();
+                document.LoadXml(File.ReadAllText(Library.PlaylistsFilePath));
+
+                XmlNode root = document.SelectSingleNode("Playlists")!;
+                XmlNodeList? playlistNodes = root.SelectNodes("Playlist");
+                if (playlistNodes is null)
+                {
+                    return Enumerable.Empty<Playlist>();
+                }
+
+                return from XmlNode playlistNode in playlistNodes
+                       select new Playlist(from trackNode in playlistNode.SelectNodes("Track")!.Cast<XmlNode>()
+                                           let id = Int64.Parse(trackNode.InnerText)
+                                           let track = (from existing in Library.Tracks
+                                                        where existing.Id == id
+                                                        select existing).FirstOrDefault()
+                                           where track is not null
+                                           select track)
+                       {
+                           Title = playlistNode.Attributes!["Title"].Value,
+                       };
+            }
+            catch
+            {
+                return Enumerable.Empty<Playlist>();
+            }
+        }
+
+        private static async void StorePlaylists()
+        {
+            StringBuilder builder = new();
+            builder.Append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n\r\n");
+            builder.Append("<Playlists>\r\n");
+            foreach (Playlist playlist in Library.database.Playlists)
+            {
+                builder.Append($"\t<Playlist Title=\"{playlist.Title}\">\r\n");
+                foreach (Track track in playlist)
+                {
+                    builder.Append($"\t\t<Track>{track.Id}</Track>\r\n");
+                }
+                builder.Append("\t</Playlist>\r\n");
+            }
+            builder.Append("</Playlists>");
+            
+            await File.WriteAllTextAsync(Library.PlaylistsFilePath, builder.ToString());
         }
 
         private sealed record MusicDataQuery
@@ -131,7 +213,7 @@ namespace Vibe.Music
                     MediaStore.Audio.Media.InterfaceConsts.ArtistId,
                 };
                 
-                ICursor? cursor = context.ContentResolver?.Query(MediaStore.Audio.Media.ExternalContentUri!, columns, null, null, null);
+                using ICursor? cursor = context.ContentResolver?.Query(MediaStore.Audio.Media.ExternalContentUri!, columns, null, null, null);
                 if (cursor is null)
                 {
                     return;
@@ -154,7 +236,7 @@ namespace Vibe.Music
                     string artistName = cursor.GetString(8)!;
                     long artistId = cursor.GetLong(9);
 
-                    Uri albumArtUri = ContentUris.WithAppendedId(MediaStore.Audio.Media.ExternalContentUri!, trackId);
+                    using Uri albumArtUri = ContentUris.WithAppendedId(MediaStore.Audio.Media.ExternalContentUri!, trackId);
                     if (!loadedArtworks.TryGetValue(albumId, out Bitmap? albumArt))
                     {
                         try
@@ -194,21 +276,21 @@ namespace Vibe.Music
 
             private readonly Dictionary<(long id, string name), Dictionary<(long id, string title, Bitmap? cover), List<(long id, string path, string title, uint duration, int index)>>> data = new();
             
-            internal static (MusicDataQuery removed, MusicDataQuery changed, MusicDataQuery missing) DifferenceBetween(MusicDataQuery before, MusicDataQuery after)
+            internal static (MusicDataQuery removed, MusicDataQuery changed, MusicDataQuery added) DifferenceBetween(MusicDataQuery before, MusicDataQuery after)
             {
-                (MusicDataQuery removed, MusicDataQuery changed, MusicDataQuery missing) difference = new(new(), new(), new());
+                (MusicDataQuery removed, MusicDataQuery changed, MusicDataQuery added) difference = new(new(), new(), new());
                 
                 (from entry in before.data
                  where !after.data.ContainsKey(entry.Key)
-                 select entry).Execute(entry => difference.removed.data.Add(entry.Key, entry.Value));
+                 select entry).ForEach(entry => difference.removed.data.Add(entry.Key, entry.Value));
                 
                 (from entry in after.data
                  where !before.data.ContainsKey(entry.Key)
-                 select entry).Execute(entry => difference.missing.data.Add(entry.Key, entry.Value));
+                 select entry).ForEach(entry => difference.added.data.Add(entry.Key, entry.Value));
                 
                 (from entry in after.data
                  where before.data.ContainsKey(entry.Key) && !before.data[entry.Key].Equals(entry.Value)
-                 select entry).Execute(entry => difference.changed.data.Add(entry.Key, entry.Value));
+                 select entry).ForEach(entry => difference.changed.data.Add(entry.Key, entry.Value));
                  
                 return difference;
             }
