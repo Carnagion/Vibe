@@ -39,6 +39,11 @@ namespace Vibe.Interface.Fragments
             get;
         }
 
+        public void RefreshData()
+        {
+            (this.listView.Adapter as SelectableListAdapter<T>)?.NotifyDataSetChanged();
+        }
+
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             this.layoutInflater = inflater;

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 using Android.App;
 using Android.Content;
@@ -102,6 +103,7 @@ namespace Vibe.Interface.Activities
                 return;
             }
             Playback.End();
+            Library.SavePersistentData();
         }
 
         private void OnNavigationViewNavigationItemSelected(object source, NavigationView.NavigationItemSelectedEventArgs eventArgs)
@@ -146,11 +148,17 @@ namespace Vibe.Interface.Activities
                         TrackListFragment tracks = new();
                         tracks.Items.AddRange(Library.Tracks);
                         return tracks;
-                    case 3 or 4:
-                        TrackListFragment temp = new();
-                        return temp;
+                    case 3:
+                        PlaylistListFragment playlists = new();
+                        playlists.Items.AddRange(from playlist in Library.Playlists 
+                                                 orderby playlist.Title 
+                                                 select playlist);
+                        return playlists;
+                    case 4:
+                        return new TrackListFragment();
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(position));
                 }
-                throw new ArgumentOutOfRangeException(nameof(position));
             }
 
             public override ICharSequence GetPageTitleFormatted(int position)

@@ -97,10 +97,17 @@ namespace Vibe.Interface.Fragments
                     Playback.Start();
                     break;
                 case Resource.Id.menu_more_artist_insert:
-                    artist.Tracks.Reverse().Execute(Playback.InsertNextInQueue);
+                    artist.Tracks.Reverse().ForEach(Playback.InsertNextInQueue);
                     break;
                 case Resource.Id.menu_more_artist_append:
-                    artist.Tracks.Execute(Playback.AddToQueue);
+                    artist.Tracks.ForEach(Playback.AddToQueue);
+                    break;
+                case Resource.Id.menu_more_artist_add_to_playlist:
+                    Bundle bundle = new();
+                    bundle.PutLong("artistId", artist.Id);
+                    Intent intent = new(Application.Context, typeof(AddToPlaylistActivity));
+                    intent.PutExtras(bundle);
+                    this.Activity.StartActivity(intent);
                     break;
             }
         }

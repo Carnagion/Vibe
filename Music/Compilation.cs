@@ -11,6 +11,19 @@ namespace Vibe.Music
     {
         private string title = "Untitled compilation";
 
+        public Compilation()
+        {
+        }
+
+        public Compilation(IEnumerable<Track> tracks, IEnumerable<Album> albums, IEnumerable<Artist> artists, IEnumerable<Playlist> playlists, IEnumerable<Compilation> compilations)
+        {
+            this.Tracks = new(tracks);
+            this.Albums = new(albums);
+            this.Artists = new(artists);
+            this.Playlists = new(playlists);
+            this.Compilations = new(compilations);
+        }
+
         public HashSet<Compilation> Compilations
         {
             get;

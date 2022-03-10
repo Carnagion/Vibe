@@ -7,4 +7,6 @@
           android:title="@string/menu_item_insert"/>
     <item android:id="@+id/menu_more_album_append"
           android:title="@string/menu_item_append"/>
+    <item android:id="@+id/menu_more_album_add_to_playlist"
+          android:title="@string/menu_item_add_to_playlist"/>
 </menu>

@@ -5,4 +5,6 @@
           android:title="@string/menu_item_insert"/>
     <item android:id="@+id/menu_more_track_append"
           android:title="@string/menu_item_append"/>
+    <item android:id="@+id/menu_more_track_add_to_playlist"
+          android:title="@string/menu_item_add_to_playlist"/>
 </menu>

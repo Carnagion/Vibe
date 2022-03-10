@@ -61,6 +61,7 @@
         <Reference Include="Mono.Android" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="Interface\Activities\AddToPlaylistActivity.cs" />
         <Compile Include="Interface\Activities\AlbumActivity.cs" />
         <Compile Include="Interface\Activities\ArtistActivity.cs" />
         <Compile Include="Interface\Activities\MainActivity.cs" />
@@ -69,6 +70,7 @@
         <Compile Include="Interface\Fragments\AlbumListFragment.cs" />
         <Compile Include="Interface\Fragments\ArtistListFragment.cs" />
         <Compile Include="Interface\Fragments\NowPlayingFragment.cs" />
+        <Compile Include="Interface\Fragments\PlaylistListFragment.cs" />
         <Compile Include="Interface\Fragments\SelectableListFragment.cs" />
         <Compile Include="Interface\Fragments\TrackListFragment.cs" />
         <Compile Include="Interface\Services\ForegroundService.cs" />
@@ -207,20 +209,24 @@
         <AndroidResource Include="Resources\font\montserrat_bold.ttf" />
         <AndroidResource Include="Resources\font\open_sans.ttf" />
         <AndroidResource Include="Resources\font\ubuntu.ttf" />
+        <AndroidResource Include="Resources\layout\activity_addtoplaylist.xml" />
         <AndroidResource Include="Resources\layout\activity_album.xml" />
         <AndroidResource Include="Resources\layout\activity_artist.xml" />
         <AndroidResource Include="Resources\layout\activity_main.xml" />
         <AndroidResource Include="Resources\layout\activity_nowplaying.xml" />
         <AndroidResource Include="Resources\layout\fragment_list_album.xml" />
         <AndroidResource Include="Resources\layout\fragment_list_artist.xml" />
+        <AndroidResource Include="Resources\layout\fragment_list_playlist.xml" />
         <AndroidResource Include="Resources\layout\fragment_list_track.xml" />
         <AndroidResource Include="Resources\layout\fragment_nowplaying.xml" />
         <AndroidResource Include="Resources\layout\list_album_item.xml" />
         <AndroidResource Include="Resources\layout\list_artist_item.xml" />
+        <AndroidResource Include="Resources\layout\list_playlist_item.xml" />
         <AndroidResource Include="Resources\layout\list_track_item.xml" />
         <AndroidResource Include="Resources\menu\menu_main_navigator.xml" />
         <AndroidResource Include="Resources\menu\menu_more_album.xml" />
         <AndroidResource Include="Resources\menu\menu_more_artist.xml" />
+        <AndroidResource Include="Resources\menu\menu_more_playlist.xml" />
         <AndroidResource Include="Resources\menu\menu_more_track.xml" />
         <AndroidResource Include="Resources\mipmap-anydpi-v26\logo.xml" />
         <AndroidResource Include="Resources\mipmap-hdpi\logo.png" />

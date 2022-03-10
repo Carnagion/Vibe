@@ -2,10 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using Android.App;
+using Android.Content;
 using Android.Graphics;
+using Android.OS;
 using Android.Views;
 using Android.Widget;
 
+using Vibe.Interface.Activities;
 using Vibe.Music;
 using Vibe.Utility.Extensions;
 
@@ -62,8 +66,8 @@ namespace Vibe.Interface.Fragments
             ImageButton more = view.FindViewById<ImageButton>(Resource.Id.list_track_item_more)!;
             more.Focusable = false;
             this.menuMappings[more] = item;
-            more.Click -= this.OnMoreMenuClick;
-            more.Click += this.OnMoreMenuClick;
+            more.Click -= this.OnMoreClick;
+            more.Click += this.OnMoreClick;
         }
 
         protected override void OnListViewItemClick(Track item, int position, View? view)
@@ -72,7 +76,7 @@ namespace Vibe.Interface.Fragments
             Playback.Start();
         }
 
-        private void OnMoreMenuClick(object source, EventArgs eventArgs)
+        private void OnMoreClick(object source, EventArgs eventArgs)
         {
             ImageButton more = (ImageButton)source;
             PopupMenu popup = more.ShowPopupMenu(Resource.Menu.menu_more_track, Resource.Style.Menu_Vibe_Popup, GravityFlags.End);
@@ -90,6 +94,13 @@ namespace Vibe.Interface.Fragments
                     break;
                 case Resource.Id.menu_more_track_append:
                     Playback.AddToQueue(track);
+                    break;
+                case Resource.Id.menu_more_track_add_to_playlist:
+                    Bundle bundle = new();
+                    bundle.PutLong("trackId", track.Id);
+                    Intent intent = new(Application.Context, typeof(AddToPlaylistActivity));
+                    intent.PutExtras(bundle);
+                    this.Activity.StartActivity(intent);
                     break;
             }
         }

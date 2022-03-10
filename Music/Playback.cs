@@ -215,7 +215,7 @@ namespace Vibe.Music
         public static void NewPlayingQueue(IEnumerable<Track> tracks)
         {
             Playback.ClearPlayingQueue();
-            tracks.Execute(Playback.AddToQueue);
+            tracks.ForEach(Playback.AddToQueue);
         }
 
         /// <summary>
