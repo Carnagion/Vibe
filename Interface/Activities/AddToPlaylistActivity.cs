@@ -3,6 +3,7 @@ using System.Linq;
 using Android.App;
 using Android.Graphics;
 using Android.OS;
+using Android.Support.Design.Widget;
 using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
@@ -89,6 +90,8 @@ namespace Vibe.Interface.Activities
             }
             else
             {
+                Snackbar.Make(this.FindViewById<CoordinatorLayout>(Resource.Id.activity_addtoplaylist_layout), $"The selected track(s) already exist in {playlist.Title}.", Snackbar.LengthShort)
+                    .Show();
             }
             this.RefreshPlaylists();
         }
