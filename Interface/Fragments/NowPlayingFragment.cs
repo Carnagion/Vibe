@@ -38,6 +38,24 @@ namespace Vibe.Interface.Fragments
             return this.view;
         }
 
+        public override void OnResume()
+        {
+            base.OnResume();
+            
+            if (Playback.NowPlaying is null)
+            {
+                this.Hide();
+            }
+            else
+            {
+                if (this.IsHidden)
+                {
+                    this.Show();
+                }
+                this.UpdateTrackInfo();
+            }
+        }
+
         public override void OnDestroy()
         {
             Playback.MediaPlayerStateChanged -= this.OnPlaybackMediaPlayerStateChanged;
@@ -58,6 +76,11 @@ namespace Vibe.Interface.Fragments
 
         private void OnPlaybackMediaPlayerStateChanged(object source, Playback.MediaPlayerStateChangeArgs eventArgs)
         {
+            if (!this.Activity.Lifecycle.CurrentState.IsAtLeast(Lifecycle.State.Resumed))
+            {
+                return;
+            }
+            
             switch (eventArgs.ChangedTo)
             {
                 case Playback.MediaPlayerState.Completed or Playback.MediaPlayerState.Stopped or Playback.MediaPlayerState.End:
@@ -68,7 +91,7 @@ namespace Vibe.Interface.Fragments
                     {
                         break;
                     }
-                    if (this.IsHidden && this.Activity.Lifecycle.CurrentState.IsAtLeast(Lifecycle.State.Resumed))
+                    if (this.IsHidden)
                     {
                         this.Show();
                     }
