@@ -72,6 +72,7 @@ namespace Vibe.Interface.Fragments
         {
             Bundle extras = new();
             extras.PutLong("albumId", item.Id);
+            extras.PutLong("artistId", item.Artist.Id);
             Intent intent = new(Application.Context, typeof(AlbumActivity));
             intent.PutExtras(extras);
             this.Activity.StartActivity(intent);

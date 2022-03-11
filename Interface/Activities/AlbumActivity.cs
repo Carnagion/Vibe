@@ -39,9 +39,10 @@ namespace Vibe.Interface.Activities
             this.SetContentView(Resource.Layout.activity_album);
 
             long albumId = this.Intent!.GetLongExtra("albumId", default);
+            long artistId = this.Intent.GetLongExtra("artistId", default); // Both album ID and artist ID are used because album IDs are not unique, which is quite frankly a poor design decision, Android
             this.album = (from album in Library.Albums
-                          where album.Id == albumId
-                          select album).First();
+                          where (album.Id == albumId) && (album.Artist.Id == artistId)
+                          select album).Single();
 
             ViewPager pager = this.FindViewById<ViewPager>(Resource.Id.activity_album_pager)!;
             pager.Adapter = new AlbumViewPagerAdapter(this.SupportFragmentManager, this.album);

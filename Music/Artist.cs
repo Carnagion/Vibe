@@ -7,15 +7,9 @@ namespace Vibe.Music
     /// <summary>
     /// An individual or group that creates music.
     /// </summary>
-    public record Artist
+    public sealed record Artist
     {
-        /// <summary>
-        /// Initialises a new instance of <see cref="Artist"/> with the provided values.
-        /// </summary>
-        /// <param name="id">A unique identifier.</param>
-        /// <param name="name">The name of the <see cref="Artist"/>.</param>
-        /// <param name="albums">The <see cref="Album"/>s released by the <see cref="Artist"/>.</param>
-        public Artist(long id, string name, IEnumerable<Album> albums)
+        internal Artist(long id, string name, IEnumerable<Album> albums)
         {
             this.Id = id;
             this.Name = String.IsNullOrEmpty(name) ? "Unnamed artist" : name;
@@ -55,6 +49,20 @@ namespace Vibe.Music
         public IEnumerable<Track> Tracks
         {
             get;
+        }
+        
+        public bool Equals(Artist? artist)
+        {
+            if (artist is null)
+            {
+                return false;
+            }
+            return this.Id == artist.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return (int)this.Id;
         }
     }
 }

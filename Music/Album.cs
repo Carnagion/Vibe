@@ -3,28 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Android.Graphics;
+using Android.Util;
 
 namespace Vibe.Music
 {
     /// <summary>
     /// A collection of songs or pieces of music.
     /// </summary>
-    public record Album
+    public sealed record Album
     {
-        /// <summary>
-        /// Initialises a new instance of <see cref="Album"/> with the provided values.
-        /// </summary>
-        /// <param name="id">A unique identifier.</param>
-        /// <param name="title">The title of the <see cref="Album"/>.</param>
-        /// <param name="artwork">The <see cref="Album"/>'s cover artwork.</param>
-        /// <param name="tracks">The <see cref="Track"/>s contained in the <see cref="Album"/>.</param>
-        public Album(long id, string title, Bitmap? artwork, IEnumerable<Track> tracks)
+        internal Album(long id, string title, Bitmap? artwork, IEnumerable<Track> tracks, long artistId)
         {
             this.Id = id;
             this.Title = String.IsNullOrEmpty(title) ? "Untitled album" : title;
             this.Artwork = artwork;
             this.Tracks = tracks;
+            this.artistId = artistId;
         }
+
+        private readonly long artistId;
 
         private Artist? artist;
         
@@ -67,8 +64,22 @@ namespace Vibe.Music
         {
             get
             {
-                return this.artist ??= Library.Artists.First(artist => artist.Albums.Any(album => album.Id == this.Id)); //Single() and Contains(this) cause issues
+                return this.artist ??= Library.Artists.Single(artist => artist.Id == this.artistId);
             }
+        }
+        
+        public bool Equals(Album? album)
+        {
+            if (album is null)
+            {
+                return false;
+            }
+            return (this.Id == album.Id) && (this.artistId == album.artistId);
+        }
+
+        public override int GetHashCode()
+        {
+            return (int)this.Id;
         }
     }
 }

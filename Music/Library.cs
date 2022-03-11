@@ -21,9 +21,9 @@ namespace Vibe.Music
     /// </summary>
     public static class Library
     {
-        private static MusicDataQuery? cache;
-
         private static readonly Compilation database = new();
+
+        private static readonly string playlistsFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Playlists.xml");
 
         /// <summary>
         /// All the <see cref="Artist"/>s in <see cref="Library"/>'s database.
@@ -85,34 +85,17 @@ namespace Vibe.Music
             }
         }
 
-        private static string PlaylistsFilePath
-        {
-            get;
-        } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Playlists.xml");
-
         /// <summary>
-        /// Searches the device for changes to media files, updating the stored <see cref="Artist"/>s, <see cref="Album"/>s, and <see cref="Track"/>s as necessary.
+        /// Searches the device for changes to media files, updating the stored <see cref="Artist"/>s, <see cref="Album"/>s, and <see cref="Track"/>s.
         /// </summary>
         public static void UpdateDatabase()
         {
-            if (Library.cache is null)
-            {
-                Library.BuildDatabase();
-                return;
-            }
+            Library.database.Artists.Clear();
+            Library.database.Playlists.Clear();
+            Library.database.Compilations.Clear();
             
-            MusicDataQuery updated = new(Application.Context);
-            (MusicDataQuery removed, MusicDataQuery changed, MusicDataQuery added) = MusicDataQuery.DifferenceBetween(Library.cache, updated);
-            Library.cache = updated;
+            new MusicDataQuery(Application.Context).ConvertToUsableData().ForEach(artist => Library.database.Artists.Add(artist));
             
-            removed.ConvertToUsableData().ForEach(artist => Library.database.Artists.RemoveWhere(existing => existing.Id == artist.Id));
-            changed.ConvertToUsableData().ForEach(artist =>
-            {
-                Library.database.Artists.RemoveWhere(existing => existing.Id == artist.Id);
-                Library.database.Artists.Add(artist);
-            });
-            added.ConvertToUsableData().ForEach(artist => Library.database.Artists.Add(artist));
-
             Library.FetchStoredPlaylists().ForEach(playlist => Library.database.Playlists.Add(playlist));
         }
 
@@ -121,21 +104,9 @@ namespace Vibe.Music
             Library.StorePlaylists();
         }
 
-        private static void BuildDatabase()
-        {
-            Library.database.Artists.Clear();
-            Library.database.Playlists.Clear();
-            Library.database.Compilations.Clear();
-            
-            Library.cache = new(Application.Context);
-            Library.cache.ConvertToUsableData().ForEach(artist => Library.database.Artists.Add(artist));
-            
-            Library.FetchStoredPlaylists().ForEach(playlist => Library.database.Playlists.Add(playlist));
-        }
-
         private static IEnumerable<Playlist> FetchStoredPlaylists()
         {
-            if (!File.Exists(Library.PlaylistsFilePath))
+            if (!File.Exists(Library.playlistsFilePath))
             {
                 return Enumerable.Empty<Playlist>();
             }
@@ -143,7 +114,7 @@ namespace Vibe.Music
             try
             {
                 XmlDocument document = new();
-                document.LoadXml(File.ReadAllText(Library.PlaylistsFilePath));
+                document.LoadXml(File.ReadAllText(Library.playlistsFilePath));
 
                 XmlNode root = document.SelectSingleNode("Playlists")!;
                 XmlNodeList? playlistNodes = root.SelectNodes("Playlist");
@@ -186,17 +157,18 @@ namespace Vibe.Music
             }
             builder.Append("</Playlists>");
             
-            await File.WriteAllTextAsync(Library.PlaylistsFilePath, builder.ToString());
+            await File.WriteAllTextAsync(Library.playlistsFilePath, builder.ToString());
         }
 
         private sealed record MusicDataQuery
         {
             internal MusicDataQuery(Context context)
             {
-                string[] columns = {
+                string[] columns =
+                {
                     MediaStore.Audio.Media.InterfaceConsts.IsMusic,
 #pragma warning disable 618
-                    MediaStore.Audio.Media.InterfaceConsts.Data,
+                    MediaStore.Audio.Media.InterfaceConsts.Data, // Marked as obsolete but still works, and nothing else works. I have no idea why. Good job, Android
 #pragma warning restore 618
                     MediaStore.Audio.Media.InterfaceConsts.Title,
                     MediaStore.Audio.Media.InterfaceConsts.CdTrackNumber,
@@ -232,7 +204,7 @@ namespace Vibe.Music
                     long artistId = cursor.GetLong(9);
 
                     using Uri albumArtUri = ContentUris.WithAppendedId(MediaStore.Audio.Media.ExternalContentUri!, trackId);
-                    if (!loadedArtworks.TryGetValue(albumId, out Bitmap? albumArt))
+                    if (!loadedArtworks.TryGetValue(trackId, out Bitmap? albumArt)) // The track ID is used because it is unique, as opposed to album ID which can be duplicate for reasons I fail to understand. Why must you do this, Android
                     {
                         try
                         {
@@ -242,63 +214,42 @@ namespace Vibe.Music
                         {
                             albumArt = null;
                         }
-                        loadedArtworks[albumId] = albumArt;
+                        loadedArtworks[trackId] = albumArt;
                     }
 
-                    (long id, string name) artist = (artistId, artistName);
-                    (long id, string title, Bitmap? cover) album = (albumId, albumTitle, albumArt);
-                    (long id, string path, string title, uint duration, int index) track = (trackId, trackPath, trackTitle, trackDuration, trackIndex);
-
-                    Dictionary<(long id, string name), Dictionary<(long id, string title, Bitmap? cover), List<(long id, string path, string title, uint duration, int index)>>> artists = this.data;
-                    if (!artists.ContainsKey(artist))
+                    if (!this.artistsInfo.TryGetValue(artistId, out _))
                     {
-                        artists.Add(artist, new());
+                        this.artistsInfo[artistId] = (artistName, new());
                     }
-                    Dictionary<(long id, string title, Bitmap? cover), List<(long id, string path, string title, uint duration, int index)>> albums = artists[artist];
-                    if (!albums.ContainsKey(album))
+                    this.artistsInfo[artistId].albums.Add(albumId);
+                    if (!this.albumsInfo.TryGetValue((artistId, albumId), out _))
                     {
-                        albums.Add(album, new());
+                        this.albumsInfo[(artistId, albumId)] = (albumTitle, albumArt, new());
                     }
-                    List<(long id, string path, string title, uint duration, int index)> tracks = albums[album];
-                    tracks.Add(track);
+                    this.albumsInfo[(artistId, albumId)].tracks.Add(trackId);
+                    this.tracksInfo[trackId] = (trackPath, trackTitle, trackDuration, trackIndex);
                 }
                 cursor.Close();
             }
-            
-            private MusicDataQuery()
-            {
-            }
 
-            private readonly Dictionary<(long id, string name), Dictionary<(long id, string title, Bitmap? cover), List<(long id, string path, string title, uint duration, int index)>>> data = new();
-            
-            internal static (MusicDataQuery removed, MusicDataQuery changed, MusicDataQuery added) DifferenceBetween(MusicDataQuery before, MusicDataQuery after)
-            {
-                (MusicDataQuery removed, MusicDataQuery changed, MusicDataQuery added) difference = new(new(), new(), new());
-                
-                (from entry in before.data
-                 where !after.data.ContainsKey(entry.Key)
-                 select entry).ForEach(entry => difference.removed.data.Add(entry.Key, entry.Value));
-                
-                (from entry in after.data
-                 where !before.data.ContainsKey(entry.Key)
-                 select entry).ForEach(entry => difference.added.data.Add(entry.Key, entry.Value));
-                
-                (from entry in after.data
-                 where before.data.ContainsKey(entry.Key) && !before.data[entry.Key].Equals(entry.Value)
-                 select entry).ForEach(entry => difference.changed.data.Add(entry.Key, entry.Value));
-                 
-                return difference;
-            }
+            private readonly Dictionary<long, (string name, HashSet<long> albums)> artistsInfo = new();
+
+            private readonly Dictionary<(long artistId, long albumId), (string title, Bitmap? artwork, HashSet<long> tracks)> albumsInfo = new(); // Both artist ID and album ID are used to uniquely identify an album since album IDs aren't unique for some reason. Excellent backend design, Android devs
+
+            private readonly Dictionary<long, (string path, string title, uint duration, int index)> tracksInfo = new();
             
             internal IEnumerable<Artist> ConvertToUsableData()
             {
-                return from artistEntry in this.data
-                       let albums = from albumEntry in artistEntry.Value
-                                    let tracks = from trackEntry in albumEntry.Value
+                // Be not afraid
+                return from artistEntry in this.artistsInfo
+                       let albums = from albumId in artistEntry.Value.albums
+                                    let albumEntry = this.albumsInfo[(artistEntry.Key, albumId)]
+                                    let tracks = from trackId in albumEntry.tracks
+                                                 let trackEntry = this.tracksInfo[trackId]
                                                  orderby trackEntry.index
-                                                 select new Track(trackEntry.id, trackEntry.path, trackEntry.title, trackEntry.duration)
-                                    select new Album(albumEntry.Key.id, albumEntry.Key.title, albumEntry.Key.cover, tracks)
-                       select new Artist(artistEntry.Key.id, artistEntry.Key.name, albums);
+                                                 select new Track(trackId, trackEntry.path, trackEntry.title, trackEntry.duration, albumId, artistEntry.Key)
+                                    select new Album(albumId, albumEntry.title, albumEntry.artwork, tracks, artistEntry.Key)
+                       select new Artist(artistEntry.Key, artistEntry.Value.name, albums);
             }
         }
     }
