@@ -118,11 +118,6 @@ namespace Vibe.Music
 
         internal static void SavePersistentData()
         {
-            Playlist playlist = new(Library.Tracks.Random().Yield().Append(Library.Tracks.Random()))
-            {
-                Title = "Test playlist",
-            };
-            Library.database.Playlists.Add(playlist);
             Library.StorePlaylists();
         }
 

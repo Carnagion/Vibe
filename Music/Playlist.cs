@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Vibe.Music
 {
@@ -12,8 +13,6 @@ namespace Vibe.Music
         /// </summary>
         public Playlist()
         {
-            Playlist.currentMaxId += 1;
-            this.Id = Playlist.currentMaxId;
         }
 
         /// <summary>
@@ -22,18 +21,6 @@ namespace Vibe.Music
         /// <param name="tracks">The <see cref="Track"/>s to include in the <see cref="Playlist"/>.</param>
         public Playlist(IEnumerable<Track> tracks) : base(tracks)
         {
-            Playlist.currentMaxId += 1;
-            this.Id = Playlist.currentMaxId;
-        }
-
-        private static long currentMaxId;
-
-        /// <summary>
-        /// The <see cref="Playlist"/>'s unique identifier.
-        /// </summary>
-        public long Id
-        {
-            get;
         }
 
         /// <summary>
