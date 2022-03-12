@@ -17,6 +17,10 @@ namespace Vibe.Interface.Fragments
 {
     internal sealed class AlbumListFragment : SelectableListFragment<Album>
     {
+        public AlbumListFragment(IEnumerable<Album> items) : base(items)
+        {
+        }
+        
         private readonly Dictionary<ImageButton, Album> menuMappings = new();
 
         private ImageButton currentClickedMenu = null!;

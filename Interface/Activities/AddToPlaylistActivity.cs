@@ -90,7 +90,7 @@ namespace Vibe.Interface.Activities
             }
             else
             {
-                Snackbar.Make(this.FindViewById<CoordinatorLayout>(Resource.Id.activity_addtoplaylist_layout), $"The selected track(s) already exist in {playlist.Title}.", Snackbar.LengthShort)
+                Snackbar.Make(this.FindViewById<CoordinatorLayout>(Resource.Id.activity_addtoplaylist_layout), $"{(this.trackToAdd is null ? "Those tracks already exist" : "That track already exists")} in {playlist.Title}!", Snackbar.LengthShort)
                     .Show();
             }
             this.RefreshPlaylists();

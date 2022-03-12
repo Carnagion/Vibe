@@ -87,18 +87,12 @@ namespace Vibe.Interface.Activities
 
             public override Fragment GetItem(int position)
             {
-                switch (position)
+                return position switch
                 {
-                    case 0:
-                        AlbumListFragment albums = new();
-                        albums.Items.AddRange(this.artist.Albums);
-                        return albums;
-                    case 1:
-                        TrackListFragment tracks = new();
-                        tracks.Items.AddRange(this.artist.Tracks);
-                        return tracks;
-                }
-                throw new ArgumentOutOfRangeException(nameof(position));
+                    0 => new AlbumListFragment(this.artist.Albums),
+                    1 => new TrackListFragment(this.artist.Tracks),
+                    _ => throw new ArgumentOutOfRangeException(nameof(position)),
+                };
             }
 
             public override ICharSequence GetPageTitleFormatted(int position)

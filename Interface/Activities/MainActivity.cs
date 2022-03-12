@@ -134,31 +134,17 @@ namespace Vibe.Interface.Activities
 
             public override Fragment GetItem(int position)
             {
-                switch (position)
+                return position switch
                 {
-                    case 0:
-                        ArtistListFragment artists = new();
-                        artists.Items.AddRange(Library.Artists);
-                        return artists;
-                    case 1:
-                        AlbumListFragment albums = new();
-                        albums.Items.AddRange(Library.Albums);
-                        return albums;
-                    case 2:
-                        TrackListFragment tracks = new();
-                        tracks.Items.AddRange(Library.Tracks);
-                        return tracks;
-                    case 3:
-                        PlaylistListFragment playlists = new();
-                        playlists.Items.AddRange(from playlist in Library.Playlists 
-                                                 orderby playlist.Title 
-                                                 select playlist);
-                        return playlists;
-                    case 4:
-                        return new TrackListFragment();
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(position));
-                }
+                    0 => new ArtistListFragment(Library.Artists),
+                    1 => new AlbumListFragment(Library.Albums),
+                    2 => new TrackListFragment(Library.Tracks),
+                    3 => new PlaylistListFragment(from playlist in Library.Playlists
+                                                  orderby playlist.Title
+                                                  select playlist),
+                    4 => new TrackListFragment(Enumerable.Empty<Track>()),
+                    _ => throw new ArgumentOutOfRangeException(nameof(position)),
+                };
             }
 
             public override ICharSequence GetPageTitleFormatted(int position)

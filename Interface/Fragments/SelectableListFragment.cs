@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 using Android.OS;
 using Android.Support.V4.App;
@@ -9,14 +10,24 @@ namespace Vibe.Interface.Fragments
 {
     internal abstract class SelectableListFragment<T> : Fragment
     {
+        public SelectableListFragment(IEnumerable<T> items)
+        {
+            this.items.AddRange(items);
+        }
+
+        private readonly List<T> items = new();
+        
         private ListView listView = null!;
 
         private LayoutInflater layoutInflater = null!;
-        
-        public List<T> Items
+
+        public IEnumerable<T> Items
         {
-            get;
-        } = new();
+            get
+            {
+                return this.items.Copy();
+            }
+        }
 
         public T? SelectedItem
         {
@@ -39,8 +50,10 @@ namespace Vibe.Interface.Fragments
             get;
         }
 
-        public void RefreshData()
+        public void RefreshData(IEnumerable<T> items)
         {
+            this.items.Clear();
+            this.items.AddRange(items);
             (this.listView.Adapter as SelectableListAdapter<T>)?.NotifyDataSetChanged();
         }
 
@@ -76,7 +89,7 @@ namespace Vibe.Interface.Fragments
 
         private void OnListViewItemClick(object source, AdapterView.ItemClickEventArgs eventArgs)
         {
-            this.SelectedItem = this.Items[eventArgs.Position];
+            this.SelectedItem = this.items[eventArgs.Position];
             this.OnListViewItemClick(this.SelectedItem!, eventArgs.Position, eventArgs.View);
         }
 
@@ -95,7 +108,7 @@ namespace Vibe.Interface.Fragments
             {
                 get
                 {
-                    return this.listFragment.Items.Count;
+                    return this.listFragment.items.Count;
                 }
             }
 
@@ -103,7 +116,7 @@ namespace Vibe.Interface.Fragments
             {
                 get
                 {
-                    return this.listFragment.Items[position];
+                    return this.listFragment.items[position];
                 }
             }
 

@@ -13,6 +13,10 @@ namespace Vibe.Interface.Fragments
 {
     internal sealed class PlaylistListFragment : SelectableListFragment<Playlist>
     {
+        public PlaylistListFragment(IEnumerable<Playlist> items) : base(items)
+        {
+        }
+        
         private readonly Dictionary<ImageButton, Playlist> menuMappings = new();
 
         private ImageButton currentClickedMenu = null!;
@@ -44,11 +48,9 @@ namespace Vibe.Interface.Fragments
         public override void OnResume()
         {
             base.OnResume();
-            this.Items.Clear();
-            this.Items.AddRange(from playlist in Library.Playlists
-                                orderby playlist.Title
-                                select playlist);
-            this.RefreshData();
+            this.RefreshData(from playlist in Library.Playlists
+                             orderby playlist.Title
+                             select playlist);
         }
 
         public override void OnDestroy()
@@ -96,18 +98,24 @@ namespace Vibe.Interface.Fragments
 
         private void OnCurrentClickedMenuMenuItemClick(object source, PopupMenu.MenuItemClickEventArgs eventArgs)
         {
-            Playlist playlist = this.menuMappings[this.currentClickedMenu];
+            Playlist clickedPlaylist = this.menuMappings[this.currentClickedMenu];
             switch (eventArgs.Item?.ItemId)
             {
                 case Resource.Id.menu_more_playlist_play:
-                    Playback.NewPlayingQueue(playlist);
+                    Playback.NewPlayingQueue(clickedPlaylist);
                     Playback.Start();
                     break;
                 case Resource.Id.menu_more_playlist_insert:
-                    ((IEnumerable<Track>)playlist).Reverse().ForEach(Playback.InsertNextInQueue);
+                    ((IEnumerable<Track>)clickedPlaylist).Reverse().ForEach(Playback.InsertNextInQueue);
                     break;
                 case Resource.Id.menu_more_playlist_append:
-                    playlist.ForEach(Playback.AddToQueue);
+                    clickedPlaylist.ForEach(Playback.AddToQueue);
+                    break;
+                case Resource.Id.menu_more_playlist_remove:
+                    Library.Playlists.Remove(clickedPlaylist);
+                    this.RefreshData(from playlist in Library.Playlists
+                                     orderby playlist.Title
+                                     select playlist);
                     break;
             }
         }
