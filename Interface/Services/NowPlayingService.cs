@@ -11,11 +11,11 @@ namespace Vibe.Interface.Services
     {
         private const int notificationChannelId = 9;
         
-        private const string pauseAction = "pauseAction";
+        private const string pauseAction = "pause";
 
-        private const string skipNextAction = "skipNextAction";
+        private const string skipNextAction = "next";
 
-        private const string skipPreviousAction = "skipPreviousAction";
+        private const string skipPreviousAction = "previous";
 
         private NotificationChannel nowPlayingChannel = null!;
 
@@ -31,25 +31,20 @@ namespace Vibe.Interface.Services
         {
             base.OnCreate();
             
-            this.nowPlayingChannel = new(NowPlayingService.notificationChannelId.ToString(), this.Resources?.GetString(Resource.String.notification_channel_nowplaying_title), NotificationImportance.Low)
-            {
-                Description = this.Resources?.GetString(Resource.String.notification_channel_nowplaying_description),
-            };
-            this.NotificationManager.CreateNotificationChannel(this.nowPlayingChannel);
+            this.SetupNotificationChannel();
             
             Playback.MediaPlayerStateChanged += this.OnPlaybackMediaPlayerStateChanged;
         }
 
         public override void OnDestroy()
         {
-            Playback.MediaPlayerStateChanged -= this.OnPlaybackMediaPlayerStateChanged;
             base.OnDestroy();
+            Playback.MediaPlayerStateChanged -= this.OnPlaybackMediaPlayerStateChanged;
         }
 
+        // Handle notification actions
         protected override void HandleCommand(Intent? intent, StartCommandFlags flags, int id)
         {
-            base.HandleCommand(intent, flags, id);
-            
             switch (intent?.Action)
             {
                 case NowPlayingService.pauseAction:
@@ -72,17 +67,18 @@ namespace Vibe.Interface.Services
             }
         }
 
+        // Return a notification based on the playback state
         protected override Notification BuildNotification()
         {
             return Playback.NowPlaying is null
                 ? new NotificationCompat.Builder(this, this.nowPlayingChannel.Id)
-                    .SetSmallIcon(Resource.Drawable.icon_notification_notplaying)
-                    .SetContentTitle(this.Resources?.GetString(Resource.String.notification_channel_nowplaying_title))
-                    .SetContentText(this.Resources?.GetString(Resource.String.notification_nowplaying_description))
+                    .SetSmallIcon(Resource.Drawable.music_off)
+                    .SetContentTitle(this.Resources?.GetString(Resource.String.notification_not_title))
+                    .SetContentText(this.Resources?.GetString(Resource.String.notification_not_description))
                     .SetOngoing(true)
                     .Build()
                 : new NotificationCompat.Builder(this, this.nowPlayingChannel.Id)
-                    .SetSmallIcon(Resource.Drawable.icon_notification_nowplaying)
+                    .SetSmallIcon(Resource.Drawable.music_note)
                     .SetContentTitle(Playback.NowPlaying.Title)
                     .SetContentText($"{Playback.NowPlaying.Album.Title} · {Playback.NowPlaying.Artist.Name}")
                     .AddAction(this.BuildPreviousAction())
@@ -92,6 +88,17 @@ namespace Vibe.Interface.Services
                     .Build();
         }
 
+        // Setup the notification channel used to push notifications
+        private void SetupNotificationChannel()
+        {
+            this.nowPlayingChannel = new(NowPlayingService.notificationChannelId.ToString(), this.Resources?.GetString(Resource.String.channel_now_title), NotificationImportance.Low)
+            {
+                Description = this.Resources?.GetString(Resource.String.channel_now_description),
+            };
+            this.NotificationManager.CreateNotificationChannel(this.nowPlayingChannel);
+        }
+
+        // Return an action for pausing/playing the track
         private NotificationCompat.Action BuildPauseAction()
         {
             Intent pause = new(this, typeof(NowPlayingService));
@@ -99,11 +106,12 @@ namespace Vibe.Interface.Services
 
             PendingIntent? pending = PendingIntent.GetService(this, 0, pause, 0);
 
-            int icon = Playback.PlayingState is Playback.MediaPlayerState.Started ? Resource.Drawable.icon_notification_pause : Resource.Drawable.icon_notification_play;
-            string? title = Playback.PlayingState is Playback.MediaPlayerState.Started ? this.Resources?.GetString(Resource.String.notification_nowplaying_pause) : this.Resources?.GetString(Resource.String.notification_nowplaying_play);
+            int icon = Playback.PlayingState is Playback.MediaPlayerState.Started ? Resource.Drawable.pause : Resource.Drawable.play;
+            string? title = Playback.PlayingState is Playback.MediaPlayerState.Started ? this.Resources?.GetString(Resource.String.notification_now_pause) : this.Resources?.GetString(Resource.String.notification_now_play);
             return new NotificationCompat.Action.Builder(icon, title, pending).Build();
         }
 
+        // Return an action for skipping to the next track
         private NotificationCompat.Action BuildNextAction()
         {
             Intent next = new(this, typeof(NowPlayingService));
@@ -111,9 +119,10 @@ namespace Vibe.Interface.Services
 
             PendingIntent? pending = PendingIntent.GetService(this, 0, next, 0);
             
-            return new NotificationCompat.Action.Builder(Resource.Drawable.icon_nowplaying_skipnext, this.Resources?.GetString(Resource.String.notification_nowplaying_next), pending).Build();
+            return new NotificationCompat.Action.Builder(Resource.Drawable.skip_next, this.Resources?.GetString(Resource.String.notification_now_next), pending).Build();
         }
 
+        // Return an action for skipping to the previous track
         private NotificationCompat.Action BuildPreviousAction()
         {
             Intent previous = new(this, typeof(NowPlayingService));
@@ -121,9 +130,10 @@ namespace Vibe.Interface.Services
 
             PendingIntent? pending = PendingIntent.GetService(this, 0, previous, 0);
             
-            return new NotificationCompat.Action.Builder(Resource.Drawable.icon_nowplaying_skipnext, this.Resources?.GetString(Resource.String.notification_nowplaying_previous), pending).Build();
+            return new NotificationCompat.Action.Builder(Resource.Drawable.skip_previous, this.Resources?.GetString(Resource.String.notification_now_previous), pending).Build();
         }
 
+        // Change or remove the notification based on the playback state
         private void OnPlaybackMediaPlayerStateChanged(object source, Playback.MediaPlayerStateChangeArgs eventArgs)
         {
             if (eventArgs.ChangedTo is Playback.MediaPlayerState.End)

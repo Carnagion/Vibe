@@ -21,7 +21,7 @@ namespace Vibe.Interface.Services
             private set;
         } = null!;
 
-        public NotificationManager NotificationManager
+        protected NotificationManager NotificationManager
         {
             get;
             private set;
@@ -51,7 +51,7 @@ namespace Vibe.Interface.Services
             base.OnDestroy();
         }
         
-        public sealed override IBinder? OnBind(Intent? intent)
+        public override IBinder? OnBind(Intent? intent)
         {
             return null;
         }
