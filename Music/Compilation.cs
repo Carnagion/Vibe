@@ -9,8 +9,6 @@ namespace Vibe.Music
     /// </summary>
     public class Compilation
     {
-        private string title = "Untitled compilation";
-
         public Compilation()
         {
         }
@@ -23,6 +21,8 @@ namespace Vibe.Music
             this.Playlists = new(playlists);
             this.Compilations = new(compilations);
         }
+        
+        private string title = "Untitled compilation";
 
         public HashSet<Compilation> Compilations
         {

@@ -94,14 +94,9 @@ namespace Vibe.Music
             Library.database.Playlists.Clear();
             Library.database.Compilations.Clear();
             
-            new MusicDataQuery(Application.Context).ConvertToUsableData().ForEach(artist => Library.database.Artists.Add(artist));
+            new MusicDataQuery(Application.Context).ToUsableData().ForEach(artist => Library.database.Artists.Add(artist));
             
             Library.FetchStoredPlaylists().ForEach(playlist => Library.database.Playlists.Add(playlist));
-        }
-
-        internal static void SavePersistentData()
-        {
-            Library.StorePlaylists();
         }
 
         private static IEnumerable<Playlist> FetchStoredPlaylists()
@@ -238,7 +233,7 @@ namespace Vibe.Music
 
             private readonly Dictionary<long, (string path, string title, uint duration, int index)> tracksInfo = new();
             
-            internal IEnumerable<Artist> ConvertToUsableData()
+            internal IEnumerable<Artist> ToUsableData()
             {
                 // Be not afraid
                 return from artistEntry in this.artistsInfo

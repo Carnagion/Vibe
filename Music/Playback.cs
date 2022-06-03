@@ -126,7 +126,7 @@ namespace Vibe.Music
             Playback.mediaPlayer.Completion -= Playback.OnMediaPlayerCompletion;
             Playback.mediaPlayer.Prepared -= Playback.OnMediaPlayerPrepared;
             
-            Playback.ClearPlayingQueue();
+            Playback.Stop();
             
             Playback.mediaPlayer.Release();
             Playback.PlayingState = MediaPlayerState.End;
@@ -162,6 +162,17 @@ namespace Vibe.Music
         }
 
         /// <summary>
+        /// Replaces <see cref="PlayingQueue"/> with <paramref name="tracks"/> and starts playing the current <see cref="Track"/>, stopping the previous <see cref="Track"/> (if any).
+        /// </summary>
+        /// <param name="tracks">The <see cref="Track"/>s to put in <see cref="PlayingQueue"/>.</param>
+        public static void Start(IEnumerable<Track> tracks)
+        {
+            Playback.Stop();
+            tracks.ForEach(track => Playback.playingQueue.AddLast(track));
+            Playback.Start();
+        }
+
+        /// <summary>
         /// Pauses the current <see cref="Track"/>. Does nothing if <see cref="NowPlaying"/> is <see langword="null"/> or if <see cref="PlayingState"/> is not <see cref="MediaPlayerState.Started"/>.
         /// </summary>
         public static void Pause()
@@ -172,6 +183,16 @@ namespace Vibe.Music
             }
             Playback.mediaPlayer.Pause();
             Playback.PlayingState = MediaPlayerState.Paused;
+        }
+
+        /// <summary>
+        /// Stops playing music and clears all <see cref="Track"/>s in <see cref="PlayingQueue"/>.
+        /// </summary>
+        public static void Stop()
+        {
+            Playback.Reset();
+            Playback.playingQueue.Clear();
+            Playback.nowPlaying = null;
         }
 
         /// <summary>
@@ -207,26 +228,6 @@ namespace Vibe.Music
             Playback.mediaPlayer.PrepareAsync();
             Playback.PlayingState = MediaPlayerState.Preparing;
         }
-
-        /// <summary>
-        /// Clears all <see cref="Track"/>s in <see cref="PlayingQueue"/> and fills it with new <see cref="Track"/>s from <paramref name="tracks"/>.
-        /// </summary>
-        /// <param name="tracks">The <see cref="Track"/>s to put in <see cref="PlayingQueue"/>.</param>
-        public static void NewPlayingQueue(IEnumerable<Track> tracks)
-        {
-            Playback.ClearPlayingQueue();
-            tracks.ForEach(Playback.AddToQueue);
-        }
-
-        /// <summary>
-        /// Clears all <see cref="Track"/>s in <see cref="PlayingQueue"/> and stops playing music.
-        /// </summary>
-        public static void ClearPlayingQueue()
-        {
-            Playback.Reset();
-            Playback.playingQueue.Clear();
-            Playback.nowPlaying = null;
-        }
         
         /// <summary>
         /// Adds <paramref name="track"/> to the end of <see cref="PlayingQueue"/>.
@@ -235,6 +236,15 @@ namespace Vibe.Music
         public static void AddToQueue(Track track)
         {
             Playback.playingQueue.AddLast(track);
+        }
+
+        /// <summary>
+        /// Adds all <see cref="Track"/>s in <paramref name="tracks"/> to the end of <see cref="PlayingQueue"/>.
+        /// </summary>
+        /// <param name="tracks">The <see cref="Track"/>s to add.</param>
+        public static void AddToQueue(IEnumerable<Track> tracks)
+        {
+            tracks.ForEach(Playback.AddToQueue);
         }
 
         /// <summary>
@@ -250,6 +260,24 @@ namespace Vibe.Music
                     break;
                 default:
                     Playback.playingQueue.AddAfter(Playback.nowPlaying, track);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Adds all <see cref="Track"/>s in <paramref name="tracks"/> directly after <see cref="NowPlaying"/> in <see cref="PlayingQueue"/>.
+        /// </summary>
+        /// <param name="tracks">The <see cref="Track"/>s to add.</param>
+        public static void InsertNextInQueue(IEnumerable<Track> tracks)
+        {
+            switch (Playback.nowPlaying)
+            {
+                case null:
+                    tracks.ForEach(track => Playback.playingQueue.AddLast(track));
+                    break;
+                default:
+                    tracks.Reverse()
+                        .ForEach(track => Playback.playingQueue.AddAfter(Playback.nowPlaying, track));
                     break;
             }
         }
