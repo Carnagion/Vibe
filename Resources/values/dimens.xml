@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <dimen name="collapsing_toolbar_height">160dp</dimen>
+    
+    <dimen name="item_image_corner_radius">4dp</dimen>
+    
+    <dimen name="item_screen_full_padding">40dp</dimen>
+    
+    <dimen name="icon_normal_size">24dp</dimen>
+    <dimen name="icon_normal_target">48dp</dimen>
+    
+    <dimen name="icon_large_size">40dp</dimen>
+    <dimen name="icon_large_target">80dp</dimen>
+</resources>

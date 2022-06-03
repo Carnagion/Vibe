@@ -4,9 +4,9 @@
     <item>
         <color android:color="@color/background"/>
     </item>
-    <item android:gravity="center"
-          android:drawable="@drawable/icon_logo"
-          android:width="80dp"
-          android:height="80dp">
+    <item android:width="96dp"
+          android:height="96dp"
+          android:gravity="center"
+          android:drawable="@drawable/music_note">
     </item>
 </layer-list>
