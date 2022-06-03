@@ -1,23 +1,15 @@
-using System;
 using System.Linq;
 
 using Android.App;
 using Android.OS;
 using Android.Support.Design.Widget;
-using Android.Support.V4.App;
-using Android.Support.V4.View;
 using Android.Support.V7.App;
 using Android.Widget;
-
-using Java.Lang;
 
 using Vibe.Interface.Fragments;
 using Vibe.Music;
 
-using Fragment = Android.Support.V4.App.Fragment;
-using FragmentManager = Android.Support.V4.App.FragmentManager;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
-using String = Java.Lang.String;
 
 namespace Vibe.Interface.Activities
 {
@@ -26,69 +18,53 @@ namespace Vibe.Interface.Activities
     {
         private Album album = null!;
 
+        // Make back button go to previous activity when clicked
         public override bool OnSupportNavigateUp()
         {
             this.OnBackPressed();
             return true;
         }
-
+        
         protected override void OnCreate(Bundle? savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-
+            
             this.SetContentView(Resource.Layout.activity_album);
+            
+            this.SetupAlbum();
+            this.SetupActionBar();
+            this.SetupTrackList();
+        }
 
+        // Retrieve the album that needs to be shown
+        private void SetupAlbum()
+        {
             long albumId = this.Intent!.GetLongExtra("albumId", default);
             long artistId = this.Intent.GetLongExtra("artistId", default); // Both album ID and artist ID are used because album IDs are not unique, which is quite frankly a poor design decision, Android
             this.album = (from album in Library.Albums
                           where (album.Id == albumId) && (album.Artist.Id == artistId)
                           select album).Single();
+        }
 
-            ViewPager pager = this.FindViewById<ViewPager>(Resource.Id.activity_album_pager)!;
-            pager.Adapter = new AlbumViewPagerAdapter(this.SupportFragmentManager, this.album);
-            this.FindViewById<TabLayout>(Resource.Id.activity_album_tabs)!.SetupWithViewPager(pager);
-
-            this.FindViewById<TextView>(Resource.Id.activity_album_albumtitle)!.Text = this.album.Title;
-            
+        // Setup the toolbar
+        private void SetupActionBar()
+        {
             this.SetSupportActionBar(this.FindViewById<Toolbar>(Resource.Id.activity_album_toolbar)!);
             this.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
             this.SupportActionBar.SetDisplayShowHomeEnabled(true);
+
+            this.FindViewById<CollapsingToolbarLayout>(Resource.Id.activity_album_collapsingToolbar)!.Title = this.album.Title;
+            
+            this.FindViewById<ImageView>(Resource.Id.activity_album_image)!.SetImageBitmap(this.album.Artwork);
         }
 
-        private sealed class AlbumViewPagerAdapter : FragmentStatePagerAdapter
+        // Setup the track list view
+        private void SetupTrackList()
         {
-            public AlbumViewPagerAdapter(FragmentManager fragmentManager, Album album) : base(fragmentManager)
-            {
-                this.album = album;
-            }
-
-            private readonly Album album;
-
-            public override int Count
-            {
-                get
-                {
-                    return 1;
-                }
-            }
-
-            public override Fragment GetItem(int position)
-            {
-                return position switch
-                {
-                    0 => new TrackListFragment(this.album.Tracks),
-                    _ => throw new ArgumentOutOfRangeException(nameof(position)),
-                };
-            }
-
-            public override ICharSequence GetPageTitleFormatted(int position)
-            {
-                return position switch
-                {
-                    0 => new String(Application.Context.GetString(Resource.String.tab_tracks)),
-                    _ => throw new ArgumentOutOfRangeException(nameof(position)),
-                };
-            }
+            TrackListFragment trackList = (TrackListFragment)this.SupportFragmentManager.FindFragmentById(Resource.Id.activity_album_trackList);
+            trackList.Items.Clear();
+            trackList.Items.AddRange(this.album.Tracks);
+            trackList.NotifyDataSetChanged();
         }
     }
 }

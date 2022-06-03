@@ -7,18 +7,16 @@ using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V4.View;
 using Android.Support.V7.App;
-using Android.Widget;
 
 using Java.Lang;
 
 using Vibe.Interface.Fragments;
 using Vibe.Music;
-using Vibe.Utility.Extensions;
 
 using Fragment = Android.Support.V4.App.Fragment;
 using FragmentManager = Android.Support.V4.App.FragmentManager;
-using Toolbar = Android.Support.V7.Widget.Toolbar;
 using String = Java.Lang.String;
+using Toolbar = Android.Support.V7.Widget.Toolbar;
 
 namespace Vibe.Interface.Activities
 {
@@ -27,50 +25,55 @@ namespace Vibe.Interface.Activities
     {
         private Artist artist = null!;
 
-        private NowPlayingFragment nowPlayingFragment = null!;
-
+        // Make back button go to previous activity when clicked
         public override bool OnSupportNavigateUp()
         {
             this.OnBackPressed();
             return true;
         }
-        
+
         protected override void OnCreate(Bundle? savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             
             this.SetContentView(Resource.Layout.activity_artist);
+            
+            this.SetupArtist();
+            this.SetupActionBar();
+            this.SetupViewPager();
+        }
 
+        // Retrieve the artist that needs to be shown
+        private void SetupArtist()
+        {
             long artistId = this.Intent!.GetLongExtra("artistId", default);
             this.artist = (from artist in Library.Artists
                            where artist.Id == artistId
-                           select artist).First();
+                           select artist).Single();
+        }
 
-            ViewPager pager = this.FindViewById<ViewPager>(Resource.Id.activity_artist_pager)!;
-            pager.Adapter = new ArtistViewPagerAdapter(this.SupportFragmentManager, this.artist);
-            this.FindViewById<TabLayout>(Resource.Id.activity_artist_tabs)!.SetupWithViewPager(pager);
-
-            this.FindViewById<TextView>(Resource.Id.activity_artist_artistname)!.Text = this.artist.Name;
-
-            this.nowPlayingFragment = (NowPlayingFragment)this.SupportFragmentManager.FindFragmentById(Resource.Id.activity_artist_fragment_nowplaying);
-            
-            this.SetSupportActionBar(this.FindViewById<Toolbar>(Resource.Id.activity_artist_toolbar)!);
+        // Setup the toolbar
+        private void SetupActionBar()
+        {
+            this.SetSupportActionBar(this.FindViewById<Toolbar>(Resource.Id.activity_artist_toolbar));
             this.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
             this.SupportActionBar.SetDisplayShowHomeEnabled(true);
+
+            this.FindViewById<CollapsingToolbarLayout>(Resource.Id.activity_artist_collapsingToolbar)!.Title = this.artist.Name;
         }
 
-        protected override void OnResume()
+        // Setup the view pager to work with the tabs
+        private void SetupViewPager()
         {
-            base.OnResume();
-            if (this.nowPlayingFragment.IsHidden && Playback.NowPlaying is not null && Playback.PlayingState is not (Playback.MediaPlayerState.Completed or Playback.MediaPlayerState.Stopped or Playback.MediaPlayerState.End))
-            {
-                this.nowPlayingFragment.Show(true);
-            }
+            ViewPager viewPager = this.FindViewById<ViewPager>(Resource.Id.activity_artist_viewpager)!;
+            viewPager.Adapter = new ArtistViewPagerAdapter(this.artist, this.SupportFragmentManager);
+            this.FindViewById<TabLayout>(Resource.Id.activity_artist_tabs)!.SetupWithViewPager(viewPager);
         }
-
+        
+        // Adapter class for tabs
         private sealed class ArtistViewPagerAdapter : FragmentStatePagerAdapter
         {
-            public ArtistViewPagerAdapter(FragmentManager fragmentManager, Artist artist) : base(fragmentManager)
+            public ArtistViewPagerAdapter(Artist artist, FragmentManager fragmentManager) : base(fragmentManager)
             {
                 this.artist = artist;
             }
@@ -85,6 +88,7 @@ namespace Vibe.Interface.Activities
                 }
             }
 
+            // Return the corresponding fragment for each tab
             public override Fragment GetItem(int position)
             {
                 return position switch
@@ -95,12 +99,13 @@ namespace Vibe.Interface.Activities
                 };
             }
 
+            // Must be overriden for tab layout titles to display properly. Xamarin moment
             public override ICharSequence GetPageTitleFormatted(int position)
             {
                 return position switch
                 {
-                    0 => new String(Application.Context.GetString(Resource.String.tab_albums)),
-                    1 => new(Application.Context.GetString(Resource.String.tab_tracks)),
+                    0 => new String(Application.Context.GetString(Resource.String.activity_artist_tab_albums)),
+                    1 => new(Application.Context.GetString(Resource.String.activity_artist_tab_tracks)),
                     _ => throw new ArgumentOutOfRangeException(nameof(position)),
                 };
             }

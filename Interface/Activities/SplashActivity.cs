@@ -19,20 +19,30 @@ namespace Vibe.Interface.Activities
     {
         private const int permissionsRequestCode = 9;
 
+        private static readonly string[] necessaryPermissions =
+        {
+            Manifest.Permission.ReadExternalStorage,
+            Manifest.Permission.WriteExternalStorage,
+            Manifest.Permission.AccessMediaLocation,
+            Manifest.Permission.WakeLock,
+            Manifest.Permission.ForegroundService,
+        };
+        
+        // Prevent the back button from canceling the startup process
         public override void OnBackPressed()
         {
         }
         
+        // Check whether all permissions have been granted, and either close the app or start the main activity depending on the result
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
         {
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
-
             if (requestCode is not SplashActivity.permissionsRequestCode)
             {
                 return;
             }
             
-            if (grantResults.Any((permission) => permission is Permission.Denied))
+            if (grantResults.Contains(Permission.Denied))
             {
                 ActivityManager? activityManager = (ActivityManager?)Application.Context.GetSystemService(SplashActivity.ActivityService);
                 activityManager?.ClearApplicationUserData();
@@ -40,23 +50,15 @@ namespace Vibe.Interface.Activities
             }
             else
             {
-                this.ExecuteTasks();
+                this.StartMainActivity();
             }
         }
-
+        
+        // On startup, check whether all permissions have been granted, and either request for permissions or start the main activity depending on the result
         protected override void OnCreate(Bundle? savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-
-            string[] necessaryPermissions =
-            {
-                Manifest.Permission.ReadExternalStorage,
-                Manifest.Permission.WriteExternalStorage,
-                Manifest.Permission.AccessMediaLocation,
-                Manifest.Permission.WakeLock,
-                Manifest.Permission.ForegroundService,
-            };
-            string[] deniedPermissions = (from string permission in necessaryPermissions
+            string[] deniedPermissions = (from permission in SplashActivity.necessaryPermissions
                                           where ContextCompat.CheckSelfPermission(this, permission) is Permission.Denied
                                           select permission).ToArray();
             if (deniedPermissions.Any())
@@ -65,11 +67,13 @@ namespace Vibe.Interface.Activities
             }
             else
             {
-                this.ExecuteTasks();
+                this.StartMainActivity();
+                
             }
         }
 
-        private void ExecuteTasks()
+        // Load data into the library and start the main activity
+        private void StartMainActivity()
         {
             new Task(() =>
             {
