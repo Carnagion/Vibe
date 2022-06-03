@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 
 using Android.OS;
 using Android.Support.V4.App;
@@ -10,24 +9,21 @@ namespace Vibe.Interface.Fragments
 {
     internal abstract class SelectableListFragment<T> : Fragment
     {
+        public SelectableListFragment()
+        {
+        }
+
         public SelectableListFragment(IEnumerable<T> items)
         {
-            this.items.AddRange(items);
+            this.Items.AddRange(items);
         }
 
-        private readonly List<T> items = new();
-        
         private ListView listView = null!;
 
-        private LayoutInflater layoutInflater = null!;
-
-        public IEnumerable<T> Items
+        public List<T> Items
         {
-            get
-            {
-                return this.items.Copy();
-            }
-        }
+            get;
+        } = new();
 
         public T? SelectedItem
         {
@@ -50,25 +46,25 @@ namespace Vibe.Interface.Fragments
             get;
         }
 
-        public void RefreshData(IEnumerable<T> items)
+        // Notify the adapter that changes have been made to the data so it can redraw all views
+        public void NotifyDataSetChanged()
         {
-            this.items.Clear();
-            this.items.AddRange(items);
-            (this.listView.Adapter as SelectableListAdapter<T>)?.NotifyDataSetChanged();
+            ((SelectableListAdapter<T>)this.listView.Adapter!).NotifyDataSetChanged();
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            this.layoutInflater = inflater;
-            
             View fragmentView = inflater.Inflate(this.FragmentViewId, container, false)!;
 
+            this.RetainInstance = true;
+
+            // Setup the list view
             this.listView = fragmentView.FindViewById<ListView>(this.ListViewId)!;
             this.listView.Adapter = new SelectableListAdapter<T>(this);
             this.listView.NestedScrollingEnabled = true;
-            this.listView.ItemClick += this.OnListViewItemClick;
 
-            this.RetainInstance = true;
+            this.listView.ItemClick += this.OnListViewItemClick;
+            this.listView.ItemLongClick += this.OnListViewItemLongClick;
 
             return fragmentView;
         }
@@ -76,21 +72,33 @@ namespace Vibe.Interface.Fragments
         public override void OnDestroy()
         {
             base.OnDestroy();
+
             this.listView.ItemClick -= this.OnListViewItemClick;
+            this.listView.ItemLongClick -= this.OnListViewItemLongClick;
         }
 
+        // Called when the adapter is creating/drawing an item view
+        protected abstract void OnListItemViewGet(T item, int position, View? view);
+
+        // Called when an item has been clicked
         protected virtual void OnListViewItemClick(T item, int position, View? view)
         {
         }
 
-        protected virtual void OnListItemViewGet(T item, int position, View? view)
+        // Called when an item has been long clicked
+        protected virtual void OnListViewItemLongClick(T item, int position, View? view)
         {
         }
 
         private void OnListViewItemClick(object source, AdapterView.ItemClickEventArgs eventArgs)
         {
-            this.SelectedItem = this.items[eventArgs.Position];
+            this.SelectedItem = this.Items[eventArgs.Position];
             this.OnListViewItemClick(this.SelectedItem!, eventArgs.Position, eventArgs.View);
+        }
+
+        private void OnListViewItemLongClick(object source, AdapterView.ItemLongClickEventArgs eventArgs)
+        {
+            this.OnListViewItemClick(this.Items[eventArgs.Position], eventArgs.Position, eventArgs.View);
         }
 
 #pragma warning disable 693
@@ -108,7 +116,7 @@ namespace Vibe.Interface.Fragments
             {
                 get
                 {
-                    return this.listFragment.items.Count;
+                    return this.listFragment.Items.Count;
                 }
             }
 
@@ -116,20 +124,20 @@ namespace Vibe.Interface.Fragments
             {
                 get
                 {
-                    return this.listFragment.items[position];
+                    return this.listFragment.Items[position];
                 }
-            }
-
-            public override View? GetView(int position, View? convertView, ViewGroup? parent)
-            {
-                View? view = convertView ?? this.listFragment.layoutInflater.Inflate(this.listFragment.ListItemViewId, parent, false);
-                this.listFragment.OnListItemViewGet(this[position], position, view);
-                return view;
             }
 
             public override long GetItemId(int position)
             {
                 return position;
+            }
+
+            public override View? GetView(int position, View? convertView, ViewGroup? parent)
+            {
+                View? view = convertView ?? this.listFragment.LayoutInflater.Inflate(this.listFragment.ListItemViewId, parent, false);
+                this.listFragment.OnListItemViewGet(this[position], position, view);
+                return view;
             }
         }
     }

@@ -4,32 +4,30 @@ using System.Linq;
 
 using Android.App;
 using Android.Content;
-using Android.Graphics;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
 
 using Vibe.Interface.Activities;
 using Vibe.Music;
-using Vibe.Utility.Extensions;
 
 namespace Vibe.Interface.Fragments
 {
-    internal sealed class AlbumListFragment : SelectableListFragment<Album>
+    internal sealed class AlbumListFragment : SelectablePopupListFragment<Album>
     {
-        public AlbumListFragment(IEnumerable<Album> items) : base(items)
+        public AlbumListFragment()
         {
         }
         
-        private readonly Dictionary<ImageButton, Album> menuMappings = new();
-
-        private ImageButton currentClickedMenu = null!;
-
+        public AlbumListFragment(IEnumerable<Album> albums) : base(albums)
+        {
+        }
+        
         protected override int FragmentViewId
         {
             get
             {
-                return Resource.Layout.fragment_list_album;
+                return Resource.Layout.fragment_albums;
             }
         }
 
@@ -37,7 +35,7 @@ namespace Vibe.Interface.Fragments
         {
             get
             {
-                return Resource.Id.fragment_list_album_list;
+                return Resource.Id.albums;
             }
         }
 
@@ -45,78 +43,72 @@ namespace Vibe.Interface.Fragments
         {
             get
             {
-                return Resource.Layout.list_album_item;
+                return Resource.Layout.item_album;
             }
         }
 
-        protected override void OnListItemViewGet(Album item, int position, View? view)
+        protected override int MoreButtonId
         {
-            ImageView image = view!.FindViewById<ImageView>(Resource.Id.list_album_item_image)!;
-            Bitmap? artwork = item.Artwork;
-            if (artwork is null)
+            get
             {
-                image.SetImageResource(Resource.Drawable.album);
+                return Resource.Id.item_album_more;
             }
-            else
-            {
-                image.SetImageBitmap(artwork);
-            }
-            
-            view.FindViewById<TextView>(Resource.Id.list_album_item_title)!.Text = item.Title;
-            view.FindViewById<TextView>(Resource.Id.list_album_item_info)!.Text = item.Artist.Name;
-            
-            ImageButton more = view.FindViewById<ImageButton>(Resource.Id.list_album_item_more)!;
-            more.Focusable = false;
-            this.menuMappings[more] = item;
-            more.Click -= this.OnMoreMenuClick;
-            more.Click += this.OnMoreMenuClick;
         }
 
-        protected override void OnListViewItemClick(Album item, int position, View? view)
+        protected override int MoreMenuId
+        {
+            get
+            {
+                return Resource.Menu.more_album;
+            }
+        }
+
+        protected override int MoreMenuStyle
+        {
+            get
+            {
+                return Resource.Style.Menu_Vibe_Popup;
+            }
+        }
+
+        protected override void OnListItemViewGet(Album album, int position, View? view)
+        {
+            base.OnListItemViewGet(album, position, view);
+            
+            ImageView image = view!.FindViewById<ImageView>(Resource.Id.item_album_image)!;
+            image.SetImageBitmap(album.Artwork);
+            image.ClipToOutline = true;
+            
+            view.FindViewById<TextView>(Resource.Id.item_album_title)!.Text = album.Title;
+            
+            int trackCount = album.Tracks.Count();
+            view.FindViewById<TextView>(Resource.Id.item_album_info)!.Text = $"{album.Artist.Name} · {trackCount} {(trackCount is 1 ? "track" : "tracks")}";
+        }
+
+        protected override void OnListViewItemClick(Album album, int position, View? view)
         {
             Bundle extras = new();
-            extras.PutLong("albumId", item.Id);
-            extras.PutLong("artistId", item.Artist.Id);
+            extras.PutLong("albumId", album.Id);
+            extras.PutLong("artistId", album.Artist.Id);
+            
             Intent intent = new(Application.Context, typeof(AlbumActivity));
             intent.PutExtras(extras);
+            
             this.Activity.StartActivity(intent);
         }
 
-        public override void OnDestroy()
+        protected override void OnMorePopupItemClick(Album album, IMenuItem? clicked, PopupMenu popup)
         {
-            base.OnDestroy();
-            this.menuMappings.Clear();
-        }
-
-        private void OnMoreMenuClick(object source, EventArgs eventArgs)
-        {
-            ImageButton more = (ImageButton)source;
-            PopupMenu popup = more.ShowPopupMenu(Resource.Menu.menu_more_album, Resource.Style.Menu_Vibe_Popup, GravityFlags.End);
-            this.currentClickedMenu = more;
-            popup.MenuItemClick += this.OnCurrentClickedMenuMenuItemClick;
-        }
-
-        private void OnCurrentClickedMenuMenuItemClick(object source, PopupMenu.MenuItemClickEventArgs eventArgs)
-        {
-            Album album = this.menuMappings[this.currentClickedMenu];
-            switch (eventArgs.Item?.ItemId)
+            switch (clicked?.ItemId)
             {
-                case Resource.Id.menu_more_album_play:
-                    Playback.NewPlayingQueue(album.Tracks);
-                    Playback.Start();
+                case Resource.Id.more_album_play:
+                    Playback.Start(album.Tracks);
                     break;
-                case Resource.Id.menu_more_album_insert:
-                    album.Tracks.Reverse().ForEach(Playback.InsertNextInQueue);
+                case Resource.Id.more_album_insert:
+                    Playback.InsertNextInQueue(album.Tracks);
                     break;
-                case Resource.Id.menu_more_album_append:
-                    album.Tracks.ForEach(Playback.AddToQueue);
-                    break;
-                case Resource.Id.menu_more_album_add_to_playlist:
-                    Bundle bundle = new();
-                    bundle.PutLong("albumId", album.Id);
-                    Intent intent = new(Application.Context, typeof(AddToPlaylistActivity));
-                    intent.PutExtras(bundle);
-                    this.Activity.StartActivity(intent);
+                case Resource.Id.more_album_append:
+                    Playback.AddToQueue(album.Tracks);
                     break;
             }
         }

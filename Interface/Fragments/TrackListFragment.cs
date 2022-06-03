@@ -1,35 +1,28 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using Android.App;
-using Android.Content;
-using Android.Graphics;
-using Android.OS;
 using Android.Views;
 using Android.Widget;
 
-using Vibe.Interface.Activities;
 using Vibe.Music;
-using Vibe.Utility.Extensions;
 
 namespace Vibe.Interface.Fragments
 {
-    internal sealed class TrackListFragment : SelectableListFragment<Track>
+    internal sealed class TrackListFragment : SelectablePopupListFragment<Track>
     {
-        public TrackListFragment(IEnumerable<Track> items) : base(items)
+        public TrackListFragment()
         {
         }
         
-        private readonly Dictionary<ImageButton, Track> menuMappings = new();
-
-        private ImageButton currentClickedMenu = null!;
-
+        public TrackListFragment(IEnumerable<Track> tracks) : base(tracks)
+        {
+        }
+        
         protected override int FragmentViewId
         {
             get
             {
-                return Resource.Layout.fragment_list_track;
+                return Resource.Layout.fragment_tracks;
             }
         }
 
@@ -37,7 +30,7 @@ namespace Vibe.Interface.Fragments
         {
             get
             {
-                return Resource.Id.fragment_list_track_list;
+                return Resource.Id.tracks;
             }
         }
 
@@ -45,66 +38,67 @@ namespace Vibe.Interface.Fragments
         {
             get
             {
-                return Resource.Layout.list_track_item;
+                return Resource.Layout.item_track;
             }
         }
 
-        protected override void OnListItemViewGet(Track item, int position, View? view)
+        protected override int MoreButtonId
         {
-            ImageView image = view!.FindViewById<ImageView>(Resource.Id.list_track_item_image)!;
-            Bitmap? artwork = item.Album.Artwork;
-            if (artwork is null)
+            get
             {
-                image.SetPadding(0, 16, 0, 0);
-                image.SetImageResource(Resource.Drawable.track);
+                return Resource.Id.item_track_more;
             }
-            else
+        }
+
+        protected override int MoreMenuId
+        {
+            get
             {
-                image.SetPadding(0, 0, 0, 0);
-                image.SetImageBitmap(artwork);
+                return Resource.Menu.more_track;
             }
+        }
+
+        protected override int MoreMenuStyle
+        {
+            get
+            {
+                return Resource.Style.Menu_Vibe_Popup;
+            }
+        }
+
+        protected override void OnListItemViewGet(Track track, int position, View? view)
+        {
+            base.OnListItemViewGet(track, position, view);
             
-            view.FindViewById<TextView>(Resource.Id.list_track_item_title)!.Text = item.Title;
-            view.FindViewById<TextView>(Resource.Id.list_track_item_info)!.Text = $"{item.Album.Title} · {item.Artist.Name}";
+            ImageView image = view!.FindViewById<ImageView>(Resource.Id.item_track_image)!;
+            image.SetImageBitmap(track.Album.Artwork);
+            image.ClipToOutline = true;
             
-            ImageButton more = view.FindViewById<ImageButton>(Resource.Id.list_track_item_more)!;
-            more.Focusable = false;
-            this.menuMappings[more] = item;
-            more.Click -= this.OnMoreClick;
-            more.Click += this.OnMoreClick;
+            view.FindViewById<TextView>(Resource.Id.item_track_title)!.Text = track.Title;
+            
+            view.FindViewById<TextView>(Resource.Id.item_track_info)!.Text = $"{track.Artist.Name} · {track.Album.Title}";
         }
 
-        protected override void OnListViewItemClick(Track item, int position, View? view)
+        protected override void OnListViewItemClick(Track track, int position, View? view)
         {
-            Playback.NewPlayingQueue(this.Items.After(item).Prepend(item));
-            Playback.Start();
+            IEnumerable<Track> tracks = this.Items
+                .After(track)
+                .Prepend(track);
+            Playback.Start(tracks);
         }
 
-        private void OnMoreClick(object source, EventArgs eventArgs)
+        protected override void OnMorePopupItemClick(Track track, IMenuItem? clicked, PopupMenu popup)
         {
-            ImageButton more = (ImageButton)source;
-            PopupMenu popup = more.ShowPopupMenu(Resource.Menu.menu_more_track, Resource.Style.Menu_Vibe_Popup, GravityFlags.End);
-            this.currentClickedMenu = more;
-            popup.MenuItemClick += this.OnCurrentClickedMenuMenuItemClick;
-        }
-
-        private void OnCurrentClickedMenuMenuItemClick(object source, PopupMenu.MenuItemClickEventArgs eventArgs)
-        {
-            Track track = this.menuMappings[this.currentClickedMenu];
-            switch (eventArgs.Item?.ItemId)
+            switch (clicked?.ItemId)
             {
-                case Resource.Id.menu_more_track_insert:
+                case Resource.Id.more_track_play:
+                    Playback.Start(track.Yield());
+                    break;
+                case Resource.Id.more_track_insert:
                     Playback.InsertNextInQueue(track);
                     break;
-                case Resource.Id.menu_more_track_append:
+                case Resource.Id.more_track_append:
                     Playback.AddToQueue(track);
-                    break;
-                case Resource.Id.menu_more_track_add_to_playlist:
-                    Bundle bundle = new();
-                    bundle.PutLong("trackId", track.Id);
-                    Intent intent = new(Application.Context, typeof(AddToPlaylistActivity));
-                    intent.PutExtras(bundle);
-                    this.Activity.StartActivity(intent);
                     break;
             }
         }
